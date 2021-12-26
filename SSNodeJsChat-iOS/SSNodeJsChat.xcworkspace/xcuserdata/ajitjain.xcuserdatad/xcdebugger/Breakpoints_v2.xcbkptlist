@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Bucket
+   uuid = "B4E68E35-2CD5-4F4A-91E5-B514ACC9DD99"
+   type = "0"
+   version = "2.0">
+   <Breakpoints>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "47853D72-754B-480E-B1FC-64BE56E95DE9"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "SSNodeJsChat/ViewController/UsernameViewController/LoginViewController.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "114"
+            endingLineNumber = "114"
+            landmarkName = "brodcastSocketMessage(to:statusCode:data:message:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "5BE8F18B-3A40-4259-A7E3-A4B07048C4EB"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "SSNodeJsChat/ViewController/UsernameViewController/LoginViewController.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "108"
+            endingLineNumber = "108"
+            landmarkName = "brodcastSocketMessage(to:statusCode:data:message:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "5BE8F18B-3A40-4259-A7E3-A4B07048C4EB - e49c36503df054cd"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "SSNodeJsChat.LoginViewController.brodcastSocketMessage(to: SSNodeJsChat.ResponseType, statusCode: Swift.Int, data: Swift.Dictionary&lt;Swift.String, Any&gt;, message: Swift.String) -&gt; ()"
+                  moduleName = "SSNodeJsChat"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/ajitjain/Documents/Max/SSChatWebSocket/SSNodeJsChat-iOS/SSNodeJsChat/ViewController/UsernameViewController/LoginViewController.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "108"
+                  endingLineNumber = "108"
+                  offsetFromSymbolStart = "144">
+               </Location>
+               <Location
+                  uuid = "5BE8F18B-3A40-4259-A7E3-A4B07048C4EB - 48c1e1a58530e477"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 () -&gt; SSNodeJsChat.ResponseType in SSNodeJsChat.LoginViewController.brodcastSocketMessage(to: SSNodeJsChat.ResponseType, statusCode: Swift.Int, data: Swift.Dictionary&lt;Swift.String, Any&gt;, message: Swift.String) -&gt; ()"
+                  moduleName = "SSNodeJsChat"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/ajitjain/Documents/Max/SSChatWebSocket/SSNodeJsChat-iOS/SSNodeJsChat/ViewController/UsernameViewController/LoginViewController.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "108"
+                  endingLineNumber = "108"
+                  offsetFromSymbolStart = "16">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "BEA2E9BF-C7CE-4D44-8600-B035B60F4242"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "SSNodeJsChat/ViewController/UsersListForLogin/UsersListForLoginViewController.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "108"
+            endingLineNumber = "108"
+            landmarkName = "brodcastSocketMessage(to:statusCode:data:message:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+   </Breakpoints>
+</Bucket>

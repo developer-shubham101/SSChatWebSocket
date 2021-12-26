@@ -1,0 +1,42 @@
+import {useDispatch, useSelector} from "react-redux";
+import {useEffect, useState} from "react";
+import {wsGetAllMessages} from "../modules/websocket";
+import {REQUEST_ALL_MESSAGES, REQUEST_MESSAGE} from "../components/const";
+import {MessageModel, ReducerRoot, RoomList} from "../type";
+import {groupArrayOfObjects} from "../utils/chatHelper";
+
+export const useMessages = () => {
+  const LIMIT_OF_ITEMS = 20;
+
+  const sendersMessages = useSelector<ReducerRoot, [MessageModel] | null | undefined>(state => state.reducer.messages);
+  const roomData = useSelector<ReducerRoot, RoomList | null | undefined>(state => state.reducer.roomData);
+
+  const [sectionData, setSectionData] = useState<{ data: [MessageModel], title: string }[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    roomData ? dispatch(wsGetAllMessages(
+      {
+        "request": REQUEST_MESSAGE,
+        "type": REQUEST_ALL_MESSAGES,
+        "room": roomData._id,
+        "limit": LIMIT_OF_ITEMS,
+        "page": currentPage
+      })) : null;
+
+  }, [roomData, currentPage]);
+
+
+  useEffect(() => {
+    setSectionData(groupArrayOfObjects(sendersMessages));
+  }, [roomData, currentPage, sendersMessages]);
+
+
+  const loadNext = () => {
+    setCurrentPage(currentPage + 1);
+  };
+
+  return {messagesList: sectionData, loadNext};
+};

@@ -1,0 +1,19 @@
+{
+	"scripts": {
+		"init": "yarn install",
+		"start": "nodemon chat-server.js"
+	},
+	"dependencies": {
+		"fcm-node": "^1.5.2",
+		"lodash": "^4.17.21",
+		"mongoose": "^5.11.8",
+		"validatorjs": "^3.22.1",
+		"websocket": "^1.0.33"
+	},
+	"devDependencies": {
+		"@types/mongoose": "^5.10.5",
+		"@types/node": "^15.0.1",
+		"@types/websocket": "^1.0.2",
+		"nodemon": "^2.0.7"
+	}
+}
