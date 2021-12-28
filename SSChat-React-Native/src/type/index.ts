@@ -7,7 +7,7 @@ export interface ReducerMain {
     loggedInUser: UserList | null | undefined;
     roomData: RoomList | null | undefined;
     messages: [MessageModel] | null | undefined;
-    userList: [UserList];
+    userList: [UserList] | null | undefined;
     lastMessage: MessageModel | null | undefined;
 
     allChatLoading: Boolean

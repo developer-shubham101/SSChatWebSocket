@@ -1,7 +1,6 @@
 import {combineReducers} from "redux";
 import * as t from "./types";
 import {ReducerMain} from "../type";
-import {ALL_MESSAGES_LOADING} from "./types";
 
 const INITIAL_STATE = {
   login: undefined,
@@ -33,15 +32,17 @@ export const mainReducer = (state: ReducerMain = INITIAL_STATE, action) => {
       return {...state, userList: action.payload};
     case t.USER_MODIFY: {
       let userList = state.userList;
-
-      for (let i = 0; i < userList.length; i++) {
-        if (userList[i].userId.toString() == action.payload.userId.toString()) {
-          userList[i] = action.payload;
-          break;
+      if (userList) {
+        for (let i = 0; i < userList.length; i++) {
+          if (userList[i].userId.toString() == action.payload.userId.toString()) {
+            userList[i] = action.payload;
+            break;
+          }
         }
+        console.log('Shubham::: USER_MODIFY', userList);
       }
-      console.log('Shubham::: USER_MODIFY', userList);
-      return {...state, userList: [...userList]};
+
+      return {...state, userList: [...(userList ?? [])]};
     }
     case t.CREATE_ROOM_SUCCESS:
       console.log("SHubham CREATE_ROOM_SUCCESS", action.payload);
@@ -68,8 +69,6 @@ export const mainReducer = (state: ReducerMain = INITIAL_STATE, action) => {
       };
     case t.CLEAR_ALL_MESSAGE_IN_ROOM:
       return {...state, messages: []};
-    // case t.LOGGED_IN_USER:
-    //   return { ...state, loggedInUser: action.payload };
     case t.CHAT_WITH_USER:
       return {...state, chatWithUser: action.payload};
     case t.ALL_MESSAGES_LOADING:
@@ -79,10 +78,7 @@ export const mainReducer = (state: ReducerMain = INITIAL_STATE, action) => {
       return {...state, userListError: action.payload};
     case t.ALL_USER_LIST_LOADING:
       return {...state, userListLoading: action.payload};
-    /*  case 'ACTIVATE_GEOD':
-            return action.geod;
-        case 'CLOSE_GEOD':
-            return {}; */
+
     default:
       return state;
   }

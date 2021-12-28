@@ -1,4 +1,4 @@
-import { isNumber } from 'lodash';
+import _, {isNumber} from 'lodash';
 import validator from 'validator';
 import moment from 'moment';
 
@@ -60,3 +60,10 @@ export const getAgoString = (date: Date): string => {
 
     return `${moment().diff(date, 'days')}d`;
 };
+
+export const staticMapURL = (latitude: string, longitude: string): string | undefined => {
+  return 'https://i.ibb.co/G7vgxqw/response.png';
+  // if(_.isEmpty(latitude) || _.isEmpty(longitude)) return ;
+  // const key = '';// Enter Google MAP key
+  // return `https://maps.googleapis.com/maps/api/staticmap?center=${latitude},${longitude}&zoom=12&size=300x300&maptype=roadmap&markers=color:red|label:C|${latitude},${longitude}&key=${key}`;
+}

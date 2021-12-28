@@ -53,6 +53,7 @@ import {LinkableText} from "../../components/LinkableText";
 import {useRoom} from "../../hooks/useRoom";
 import moment from "moment";
 import {useMessages} from "../../hooks/useMessages";
+import {staticMapURL} from "../../utils/general";
 
 // export const useSelector: TypedUseSelectorHook<ReducerRoot> = useReduxSelector
 
@@ -74,7 +75,7 @@ const ChatScreen = ({
   const {usersList} = useRoom();
   // const [currentPage, setCurrentPage] = useState(1);
 
-  console.log('Task', tasks);
+  // console.log('Task', tasks);
   const roomData = useSelector<ReducerRoot, RoomList | null | undefined>(state => state.reducer.roomData);
   // const sendersMessages = useSelector<ReducerRoot, [MessageModel] | null | undefined>(state => state.reducer.messages);
   const loggedInUser = useSelector<ReducerRoot, UserList | null | undefined>(state => state.reducer.loggedInUser);
@@ -126,7 +127,7 @@ const ChatScreen = ({
 
 
       let scrollToIndex = messagesList.length - currentVisibleIndex;
-      if (scrollToIndex >= 0) {
+      if (scrollToIndex >= 0 && scrollToIndex < messagesList.length) {
         setTimeout(() => {
           listRef?.current?.scrollToIndex({animated: false, index: scrollToIndex})
         }, 1000);
@@ -290,6 +291,39 @@ const ChatScreen = ({
     })
       .then(location => {
         console.log(location);
+
+        /*
+        *
+      accuracy: 5
+altitude: 0
+course: -1
+latitude: 37.785834
+longitude: -122.406417
+speed: -1
+time: 1640685257419.384
+* */
+
+        const messageContent = {
+          "latitude": "26.938283",
+          "name": "Military Containment",
+          "longitude": "75.773746",
+          "address": "Jhotwara, Jaipur, Rajasthan 302039"
+        };
+        if (  roomData != null && loggedInUser != null) {
+          store.dispatch(wsSendMessage({
+            "request": REQUEST_MESSAGE,
+            "type": TYPE_ADD_MESSAGE,
+            "roomId": roomData._id,
+            "room": roomData._id,
+            "message": "",
+            "message_type": MESSAGE_TYPE_LOCATION,
+            "media": "",
+            "receiver_id": roomData.userList[0],
+            "sender_id": loggedInUser.userId.toString(),
+            "message_content": messageContent
+          }));
+        }
+
       })
       .catch(error => {
         const {code, message} = error;
@@ -490,96 +524,127 @@ const ChatScreen = ({
 
   }*/
 
-  const renderMessage = ({item}: { item: MessageModel }) => {
+  const showDate = (needToShowDate: boolean, date: moment.Moment): JSX.Element => {
+    if (!needToShowDate) return <></>;
+    return <Text>{date.toString()}</Text>
+  }
+
+  const renderMessage = ({item, index}: { item: MessageModel, index: number }) => {
+    const lastMessage: MessageModel | undefined = messagesList[index - 1] ?? undefined;
+
+
+    const thisItemDate: moment.Moment = moment(item.time);
+    let needToShowDate: boolean = (lastMessage?.time == undefined) ? true :
+      !(moment(lastMessage?.time).isSame(thisItemDate, 'date'));
+
 
     if (loggedInUser && item.sender_id.toString() == loggedInUser.userId.toString()) { // send my me
       switch (item.message_type) {
         case MESSAGE_TYPE_IMAGE:
           let messageContent = (item.message_content ?? mediaFake) as FileContent;
           return (
+            <>
+              {showDate(needToShowDate, thisItemDate)}
+              <View
+                style={{paddingVertical: 5, alignItems: "flex-end"}}>
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  style={{}}>
+                  <View style={{
+                    height: 100, width: 100,
+                    borderRadius: 4,
+                    borderWidth: 2,
+                    borderColor: 'lightgreen',
+                    overflow: 'hidden',
+                  }}>
+                    <Image
+                      source={{uri: messageContent.file_url}}
+                      style={{flex: 1}}/>
+                  </View>
 
-            <View
-              style={{paddingVertical: 5, alignItems: "flex-end"}}>
-              <TouchableOpacity
-                activeOpacity={0.8}
-                style={{}}>
-                <View style={{
-                  height: 100, width: 100,
-                  borderRadius: 4,
-                  borderWidth: 2,
-                  borderColor: 'lightgreen',
-                  overflow: 'hidden',
-                }}>
-                  <Image
-                    source={{uri: messageContent.file_url}}
-                    style={{flex: 1}}/>
-                </View>
-
-              </TouchableOpacity>
-            </View>
-
+                </TouchableOpacity>
+              </View>
+            </>
           )
 
         case MESSAGE_TYPE_CONTACT:
           let contactContent = (item.message_content ?? contactFake) as ContactContent;
 
           return (
-            <View
-              style={{
-                paddingVertical: 5,
-                alignItems: "flex-end",
-              }}>
-              <TouchableOpacity activeOpacity={0.8}
-                                onPress={() => handleContact(contactContent)}>
-                <View
-                  style={{
-                    borderRadius: 4,
-                    backgroundColor: 'lightgreen',
-                  }}>
-                  <Text style={{
-                    color: "black",
+            <>
+              {showDate(needToShowDate, thisItemDate)}
+              <View
+                style={{
+                  paddingVertical: 5,
+                  alignItems: "flex-end",
+                }}>
+                <TouchableOpacity activeOpacity={0.8}
+                                  onPress={() => handleContact(contactContent)}>
+                  <View
+                    style={{
+                      borderRadius: 4,
+                      backgroundColor: 'lightgreen',
+                    }}>
+                    <Text style={{
+                      color: "black",
 
-                    padding: 5,
-                  }}>
-                    {`${contactContent.first_name} ${contactContent.middle_name} ${contactContent.last_name}`}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            </View>
+                      padding: 5,
+                    }}>
+                      {`${contactContent.first_name} ${contactContent.middle_name} ${contactContent.last_name}`}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+            </>
           )
 
         case MESSAGE_TYPE_LOCATION:
           let locationContent = (item.message_content ?? locationFake) as LocationContent;
           return (
-            <View
-              style={{
-                paddingVertical: 5,
-                alignItems: "flex-end",
-              }}>
-              <TouchableOpacity
-                activeOpacity={0.8}
-                onPress={() => {
-                  openMap({
-                    latitude: parseFloat(locationContent.latitude),
-                    longitude: parseFloat(locationContent.longitude)
-                  });
+            <>
+              {showDate(needToShowDate, thisItemDate)}
+              <View
+                style={{
+                  paddingVertical: 5,
+                  alignItems: "flex-end",
                 }}>
-                <View
-                  style={{
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  onPress={() => {
+                    openMap({
+                      latitude: parseFloat(locationContent.latitude),
+                      longitude: parseFloat(locationContent.longitude)
+                    });
+                  }}>
+
+                  <View style={{
+                    height: 100, width: 100,
                     borderRadius: 4,
-                    backgroundColor: 'lightgreen',
+                    borderWidth: 2,
+                    borderColor: 'lightgreen',
+                    overflow: 'hidden',
                   }}>
-                  <Text style={{
-                    color: "black",
-                    padding: 5,
-                  }}>
-                    {locationContent.name}
-                    {'\n'}
-                    {locationContent.address}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            </View>
+                    <Image
+                      source={{uri:  staticMapURL(locationContent.latitude, locationContent.longitude)}}
+                      style={{flex: 1}}/>
+                  </View>
+                  <View
+                    style={{
+                      borderRadius: 4,
+                      backgroundColor: 'lightgreen',
+                    }}>
+                    <Text style={{
+                      color: "black",
+                      padding: 5,
+                    }}>
+                      {locationContent.name}
+                      {'\n'}
+                      {locationContent.address}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+            </>
           )
 
         /*case MESSAGE_TYPE_DOCUMENT:
@@ -638,36 +703,42 @@ const ChatScreen = ({
           const filename = documentContent.file_url.replace(/^.*[\\\/]/, '');
 
           return (
-            <RightDocument
-              task={tasks[filename]}
-              item={item}
-              downloadFile={downloadFile}
-            />
+            <>
+              {showDate(needToShowDate, thisItemDate)}
+              <RightDocument
+                task={tasks[filename]}
+                item={item}
+                downloadFile={downloadFile}
+              />
+            </>
           )
         default:
           return (
-            <View
-              style={{
-                paddingVertical: 5,
-                alignItems: "flex-end",
-              }}>
-
+            <>
+              {showDate(needToShowDate, thisItemDate)}
               <View
                 style={{
-                  borderRadius: 4,
-                  backgroundColor: 'lightgreen',
+                  paddingVertical: 5,
+                  alignItems: "flex-end",
                 }}>
-                {/* <Text style={{color: "black", padding: 5,}}>
+
+                <View
+                  style={{
+                    borderRadius: 4,
+                    backgroundColor: 'lightgreen',
+                  }}>
+                  {/* <Text style={{color: "black", padding: 5,}}>
                   {item.message}
                 </Text>*/}
 
-                <LinkableText
-                  readMoreOption={false}
-                  text={item.message}
-                />
-                <Text>{moment(item.time).format('HH:mm:ss')}</Text>
+                  <LinkableText
+                    readMoreOption={false}
+                    text={item.message}
+                  />
+                  <Text>{moment(item.time).format('HH:mm:ss')}</Text>
+                </View>
               </View>
-            </View>
+            </>
           )
       }
     } else {
@@ -675,133 +746,158 @@ const ChatScreen = ({
         case MESSAGE_TYPE_IMAGE:
           let messageContent = (item.message_content ?? mediaFake) as FileContent;
           return (
+            <>
+              {showDate(needToShowDate, thisItemDate)}
+              <View
+                style={{paddingVertical: 5}}>
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  style={{}}>
+                  <View style={{
+                    height: 100, width: 100,
+                    borderRadius: 4,
+                    borderWidth: 2,
+                    borderColor: 'skyblue',
+                    overflow: 'hidden',
+                  }}>
+                    <Image
+                      source={{uri: messageContent.file_url}}
+                      style={{flex: 1}}/>
+                  </View>
 
-            <View
-              style={{paddingVertical: 5}}>
-              <TouchableOpacity
-                activeOpacity={0.8}
-                style={{}}>
-                <View style={{
-                  height: 100, width: 100,
-                  borderRadius: 4,
-                  borderWidth: 2,
-                  borderColor: 'skyblue',
-                  overflow: 'hidden',
-                }}>
-                  <Image
-                    source={{uri: messageContent.file_url}}
-                    style={{flex: 1}}/>
-                </View>
-
-              </TouchableOpacity>
-            </View>
-
+                </TouchableOpacity>
+              </View>
+            </>
           )
 
         case MESSAGE_TYPE_CONTACT:
           let contactContent = (item.message_content ?? contactFake) as ContactContent;
           return (
-            <TouchableOpacity
-              style={{paddingVertical: 5}}
-              onPress={() => handleContact(contactContent)}>
-              <Text style={{
-                color: "black",
-                backgroundColor: "lightgreen",
-                padding: 5,
-                textAlign: "right",
-              }}>
-                {contactContent.first_name}
-                {contactContent.mobile}
-              </Text>
-            </TouchableOpacity>
+            <>
+              {showDate(needToShowDate, thisItemDate)}
+              <TouchableOpacity
+                style={{paddingVertical: 5}}
+                onPress={() => handleContact(contactContent)}>
+                <Text style={{
+                  color: "black",
+                  backgroundColor: "lightgreen",
+                  padding: 5,
+                  textAlign: "right",
+                }}>
+                  {contactContent.first_name}
+                  {contactContent.mobile}
+                </Text>
+              </TouchableOpacity>
+            </>
           )
 
 
         case MESSAGE_TYPE_LOCATION:
           let locationContent = (item.message_content ?? locationFake) as LocationContent;
           return (
-            <View
-              style={{paddingVertical: 5}}>
-              <TouchableOpacity activeOpacity={0.8}
-                                onPress={() => {
-                                  openMap({
-                                    latitude: parseFloat(locationContent.latitude),
-                                    longitude: parseFloat(locationContent.longitude)
-                                  });
-                                }}>
-                <View
-                  style={{
-                    borderRadius: 4,
-                    backgroundColor: 'lightgreen',
-                  }}>
-                  <Text style={{
-                    color: "black",
+            <>
+              {showDate(needToShowDate, thisItemDate)}
+              <View
+                style={{paddingVertical: 5}}>
+                <TouchableOpacity activeOpacity={0.8}
+                                  onPress={() => {
+                                    openMap({
+                                      latitude: parseFloat(locationContent.latitude),
+                                      longitude: parseFloat(locationContent.longitude)
+                                    });
+                                  }}>
+                  <View
+                    style={{
+                      borderRadius: 4,
+                      backgroundColor: 'lightgreen',
+                    }}>
 
-                    padding: 5,
-                  }}>
-                    {locationContent.name}
-                    {'\n'}
-                    {locationContent.address}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            </View>
+                    <View style={{
+                      height: 100, width: 100,
+                      borderRadius: 4,
+                      borderWidth: 2,
+                      borderColor: 'lightgreen',
+                      overflow: 'hidden',
+                    }}>
+                      <Image
+                        source={{uri:  staticMapURL(locationContent.latitude, locationContent.longitude)}}
+                        style={{flex: 1}}/>
+                    </View>
+                    <Text style={{
+                      color: "black",
+
+                      padding: 5,
+                    }}>
+                      {locationContent.name}
+                      {'\n'}
+                      {locationContent.address}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+            </>
           )
         case MESSAGE_TYPE_DOCUMENT:
           let documentContent = (item.message_content ?? locationFake) as FileContent;
           return (
-            <View
-              style={{
-                paddingVertical: 5,
-                alignItems: "flex-start",
-              }}>
-              <TouchableOpacity activeOpacity={0.8}
-                                onPress={() => {
+            <>
+              {showDate(needToShowDate, thisItemDate)}
+              <View
+                style={{
+                  paddingVertical: 5,
+                  alignItems: "flex-start",
+                }}>
+                <TouchableOpacity activeOpacity={0.8}
+                                  onPress={() => {
 
-                                }}>
+                                  }}>
+                  <View
+                    style={{
+                      borderRadius: 4,
+                      backgroundColor: 'skyblue',
+                    }}>
+                    <Text style={{
+                      color: "black",
+
+                      padding: 5,
+                    }}>
+
+                      {'File \n'}
+                      {documentContent.file_meta.file_type}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+            </>
+          )
+        default:
+          return (
+            <>
+              {showDate(needToShowDate, thisItemDate)}
+              <View
+                style={{
+                  paddingVertical: 5,
+                  alignItems: "flex-start",
+                }}>
+
                 <View
                   style={{
                     borderRadius: 4,
                     backgroundColor: 'skyblue',
                   }}>
-                  <Text style={{
-                    color: "black",
-
-                    padding: 5,
-                  }}>
-
-                    {'File \n'}
-                    {documentContent.file_meta.file_type}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            </View>
-          )
-        default:
-          return (
-            <View
-              style={{
-                paddingVertical: 5,
-                alignItems: "flex-start",
-              }}>
-
-              <View
-                style={{
-                  borderRadius: 4,
-                  backgroundColor: 'skyblue',
-                }}>
-                {/*<Text style={{color: "black", padding: 5,}}>
+                  {/*<Text style={{color: "black", padding: 5,}}>
                   {item.message}
                 </Text>*/}
-                <LinkableText
-                  readMoreOption
-                  text={item.message}
-                  numberOfLines={4}
-                />
-                <Text>{moment(item.time).format('HH:mm:ss')}</Text>
-              </View>
+                  <LinkableText
+                    readMoreOption
+                    text={item.message}
+                    numberOfLines={4}
+                  />
+                  <Text>{moment(item.time).format('HH:mm:ss')}</Text>
+                </View>
 
-            </View>
+              </View>
+            </>
           )
       }
     }

@@ -1,19 +1,13 @@
-import React, { useEffect } from 'react';
-import {
-  FlatList,
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
-import { wsCreateRoom, wsGetAllUsers } from '../modules/websocket';
-import { ALL_USER, REQUEST_ROOM, REQUEST_USERS, TYPE_CREATE_ROOM } from './const';
+import React, {useEffect} from 'react';
+import {FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity, View,} from 'react-native';
+import {useDispatch, useSelector} from 'react-redux';
+import {wsCreateRoom, wsGetAllUsers} from '../modules/websocket';
+import {ALL_USER, REQUEST_ROOM, REQUEST_USERS, TYPE_CREATE_ROOM} from './const';
+import {ReducerRoot, UserList} from "../type";
 
-const UsersList = ({ navigation }) => {
-  const userList = useSelector(state => state.reducer.userList);
-  const loggedInUser = useSelector(state => state.reducer.loggedInUser);
+const UsersList = ({navigation}) => {
+  const userList = useSelector<ReducerRoot, [UserList] | null | undefined>(state => state.reducer.userList);
+  const loggedInUser = useSelector<ReducerRoot, UserList | null | undefined>(state => state.reducer.loggedInUser);
 
   const dispatch = useDispatch();
 
@@ -32,18 +26,18 @@ const UsersList = ({ navigation }) => {
   // }
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={{flex: 1}}>
       <View style={styles.container}>
         <TouchableOpacity
           onPress={() => {
             navigation.goBack();
           }}>
           <Text
-            style={{ color: 'black', fontWeight: 'bold', marginVertical: 10 }}>
+            style={{color: 'black', fontWeight: 'bold', marginVertical: 10}}>
             BACK
           </Text>
         </TouchableOpacity>
-        <Text style={{ color: 'black', fontWeight: 'bold', marginVertical: 10 }}>
+        <Text style={{color: 'black', fontWeight: 'bold', marginVertical: 10}}>
           Chat With :
         </Text>
         <FlatList
@@ -52,32 +46,34 @@ const UsersList = ({ navigation }) => {
           data={
             userList?.length
               ? userList.filter(item => {
-                return item.userId != loggedInUser;
+                return item.userId != loggedInUser?.userId;
               })
               : []
           }
-          renderItem={({ item }) => {
+          renderItem={({item}) => {
             console.log('item--------------', item);
             return (
               <TouchableOpacity
                 onPress={() => {
-                  dispatch(
-                    wsCreateRoom({
-                      userList: [item.userId.toString(), loggedInUser.userId],
-                      createBy: loggedInUser.userId,
-                      type: TYPE_CREATE_ROOM,
-                      request: REQUEST_ROOM,
-                    }),
-                  );
+                  if (loggedInUser != null) {
+                    dispatch(
+                      wsCreateRoom({
+                        userList: [item.userId.toString(), loggedInUser.userId],
+                        createBy: loggedInUser.userId,
+                        type: TYPE_CREATE_ROOM,
+                        request: REQUEST_ROOM,
+                      }),
+                    );
+                    navigation.navigate('ChatScreen');
+                  }
 
-                  navigation.navigate('ChatScreen');
                 }}
                 style={{
                   borderBottomWidth: 1,
                   borderColor: 'grey',
                   paddingVertical: 20,
                 }}>
-                <Text style={{ color: 'black' }}>{item.firstName}</Text>
+                <Text style={{color: 'black'}}>{item.firstName}</Text>
               </TouchableOpacity>
             );
           }}
@@ -88,8 +84,8 @@ const UsersList = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, flexDirection: 'column', padding: 15 },
-  subContainer: { marginTop: 100, marginEnd: 15, marginStart: 15 },
+  container: {flex: 1, flexDirection: 'column', padding: 15},
+  subContainer: {marginTop: 100, marginEnd: 15, marginStart: 15},
   textInput: {
     height: 60,
     width: 300,
@@ -104,7 +100,7 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     backgroundColor: 'black',
   },
-  label: { marginTop: 10 },
+  label: {marginTop: 10},
   newUserChat: {
     width: 50,
     height: 50,
@@ -131,7 +127,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  buttonTitle: { color: '#ffffff', fontSize: 20 },
+  buttonTitle: {color: '#ffffff', fontSize: 20},
 });
 
 export default UsersList;

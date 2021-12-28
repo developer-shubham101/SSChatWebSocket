@@ -1,11 +1,11 @@
-import React, { useEffect } from "react";
-import { FlatList, StyleSheet, Text, TouchableOpacity } from "react-native";
-import { connect, useSelector } from "react-redux";
+import React, {useEffect} from "react";
+import {FlatList, StyleSheet, Text, TouchableOpacity} from "react-native";
+import {connect, useSelector} from "react-redux";
 
-import { wsLoginUser } from "../modules/websocket";
-import { FCM_TOKEN, REQUEST, TYPE_LOGIN_OR_CREATE } from "./const";
+import {wsLoginUser} from "../modules/websocket";
+import {FCM_TOKEN, REQUEST, TYPE_LOGIN_OR_CREATE} from "./const";
 import store from "../modules/store";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {SafeAreaView} from "react-native-safe-area-context";
 
 const STATIC_USER_LIST = [{
   userId: "1",
@@ -36,9 +36,9 @@ const STATIC_USER_LIST = [{
 
 
 const Login = ({
-  navigation
+                 navigation
 
-}) => {
+               }) => {
   const loggedInUser = useSelector(state => state.reducer.loggedInUser);
   console.log('SHUBHAM:: loggedInUser', JSON.stringify(loggedInUser));
   useEffect(() => {
@@ -47,7 +47,7 @@ const Login = ({
     }
   }, [loggedInUser]);
 
-  const onLoginUser = ({ userId, userEmail, userName, password }) => {
+  const onLoginUser = ({userId, userEmail, userName, password}) => {
     store.dispatch(wsLoginUser({
       "userId": userId,
       "userName": userEmail,
@@ -70,23 +70,24 @@ const Login = ({
       <FlatList
         data={STATIC_USER_LIST}
         keyExtractor={(item, index) => item.userEmail}
-        renderItem={({ item }) => {
-          return <TouchableOpacity style={{ borderBottomWidth: 1, borderColor: "grey", paddingVertical: 20 }}
+        renderItem={({item}) => {
+          return <TouchableOpacity
+            style={{borderBottomWidth: 1, borderColor: "grey", paddingVertical: 20}}
             onPress={() => {
               onLoginUser(item);
-            }}><Text>{item.userName}</Text></TouchableOpacity>;
-        }} />
-
-
+            }}>
+            <Text>{item.userName}</Text>
+          </TouchableOpacity>;
+        }}/>
     </SafeAreaView>
   );
 };
 
 
 const styles = StyleSheet.create({
-  container: { flex: 1, flexDirection: "column", padding: 15 },
-  subContainer: { marginTop: 100, marginEnd: 15, marginStart: 15 },
-  label: { marginVertical: 10, fontWeight: "bold" },
+  container: {flex: 1, flexDirection: "column", padding: 15},
+  subContainer: {marginTop: 100, marginEnd: 15, marginStart: 15},
+  label: {marginVertical: 10, fontWeight: "bold"},
   inputBox: {
     height: 50,
     borderWidth: 1,
@@ -96,7 +97,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center"
   },
-  buttonTitle: { color: "#ffffff", fontSize: 20 }
+  buttonTitle: {color: "#ffffff", fontSize: 20}
 });
 
 
