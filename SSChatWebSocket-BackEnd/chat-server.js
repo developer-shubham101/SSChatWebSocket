@@ -6,14 +6,13 @@ process.title = 'node-chat';
 
 
 // websocket and http servers
-const webSocketServer = require('websocket').server;
-const http = require('http');
-const mongoose = require('mongoose');
-const config = require('./config');
+var webSocketServer = require('websocket').server;
+var http = require('http');
+var mongoose = require('mongoose');
+var config = require('./config');
 
 let FCM = require('fcm-node');
 let Validator = require('validatorjs');
-const _ = require("lodash");
 
 let fcm = new FCM(config.serverKey);
 
@@ -21,7 +20,7 @@ let allConnections = {};
 let loginUsers = {};
 
 
-const UsersModel = mongoose.model('Users', {
+var UsersModel = mongoose.model('Users', {
 
 	userName: String,
 	password: String,
@@ -36,19 +35,22 @@ const UsersModel = mongoose.model('Users', {
 	is_online: Boolean
 });
 
-const MessageModel = mongoose.model(`messages`, {
+var MessageModel = mongoose.model(`messages`, {
 	roomId: mongoose.Schema.Types.ObjectId,
 
-	message: String, message_type: String,
+	message: String,
+	message_type: String,
 
 	media: String,
 
-	receiver_id: String, time: Date,
+	receiver_id: String,
+	time: Date,
 
-	sender_id: String, message_content: Object
+	sender_id: String,
+	message_content: Object
 });
 
-const RoomModel = mongoose.model('Room', {
+var RoomModel = mongoose.model('Room', {
 	users: Object,
 
 	type: String, //group/individual
@@ -65,14 +67,16 @@ const RoomModel = mongoose.model('Room', {
 });
 
 
-const BlockModel = mongoose.model('Block', {
-	blockedBy: String, blockedTo: String, isBlock: Boolean
+var BlockModel = mongoose.model('Block', {
+	blockedBy: String,
+	blockedTo: String,
+	isBlock: Boolean
 });
 
 /**
  * HTTP server
  */
-const server = http.createServer(function (request, response) {
+var server = http.createServer(function (request, response) {
 	// set response header
 	response.writeHead(200, { 'Content-Type': 'text/html' });
 
@@ -89,7 +93,7 @@ server.listen(config.webSocketsServerPort, function () {
 /**
  * WebSocket server
  */
-const wsServer = new webSocketServer({
+var wsServer = new webSocketServer({
 	// WebSocket server is tied to a HTTP server. WebSocket request is just
 	// an enhanced HTTP request. For more info http://tools.ietf.org/html/rfc6455#page-6
 	httpServer: server
@@ -121,7 +125,10 @@ class SSChatReact {
 
 	responseError = (code, type, message, toString) => {
 		let data = {
-			statusCode: code, message: message, data: {}, type: type
+			statusCode: code,
+			message: message,
+			data: {},
+			type: type
 		};
 		if (toString) {
 			return JSON.stringify(data);
@@ -133,7 +140,10 @@ class SSChatReact {
 
 	responseSuccess = (code, type, dataObject, message, toString) => {
 		let data = {
-			statusCode: code, message: message, data: dataObject, type: type
+			statusCode: code,
+			message: message,
+			data: dataObject,
+			type: type
 		};
 		if (toString) {
 			return JSON.stringify(data);
@@ -144,10 +154,18 @@ class SSChatReact {
 	}
 
 	isFine = (item) => {
-		return !(item == '' || item == 'undefined' || item == null);
+
+		if (item == '' || item == 'undefined' || item == null) {
+
+			return false;
+		} else {
+
+			return true;
+		}
 	}
 
 	//MARK:- Private Functions
+
 	originIsAllowed = (request) => {
 		// put logic here to detect whether the specified origin is allowed.
 		console.log(`origin:::   ${request.resourceURL.pathname}`);
@@ -180,6 +198,35 @@ class SSChatReact {
 				return "Candy Pack";
 			case "VIDEO_PACK_CANDY":
 				return "Candy Pack";
+			case "REPlAY":
+				return "Replay";
+			default:
+				return message.substring(0, 100);
+		}
+
+	}
+	getLastMessageForNotification = (message, type) => {
+		switch (type) {
+			case "TEXT":
+				return message.substring(0, 100);
+			case "IMAGE":
+				return "📷 Image";
+			case "DOCUMENT":
+				return "📄 Document";
+			case "LOCATION":
+				return "📍 Location";
+			case "CONTACT":
+				return "📞";
+			case "VIDEO":
+				return "🎞️ Video";
+			case "IMAGE_CANDY":
+				return "📷 Candy Image";
+			case "VIDEO_CANDY":
+				return "🎞️ Candy Video";
+			case "IMAGE_PACK_CANDY":
+				return "📷 Candy Pack";
+			case "VIDEO_PACK_CANDY":
+				return "🎞️ Candy Pack";
 			case "REPlAY":
 				return "Replay";
 			default:
@@ -238,28 +285,28 @@ class SSChatReact {
 	}
 
 	/* sendMessageToUser = (user, message) => {
-			if (allConnections[user]) {
-					allConnections[user].sendUTF(message);
-			}
+		if (allConnections[user]) {
+			allConnections[user].sendUTF(message);
+		}
 	}
 
 	addConnectionToList = (connection, userId) => {
-			connection['uId'] = userId;
-			connection['connectionID'] = Date.now();
-			allConnections[userId] = connection;
+		connection['uId'] = userId;
+		connection['connectionID'] = Date.now();
+		allConnections[userId] = connection;
 	}
 
 	removeConnectionFromList = (connection) => {
 
-			delete allConnections[userId];
-			// let userId = connection.uId;
-			// let connectionID = connection.connectionID;
-			// if (!(!allConnections[userId] || allConnections[userId] == undefined)) {
-			// 	let filteredConnections = allConnections[userId].filter((element) => {
-			// 		return element.connectionID != connectionID;
-			// 	});
-			// 	allConnections[userId] = filteredConnections;
-			// }
+		delete allConnections[userId];
+		// let userId = connection.uId;
+		// let connectionID = connection.connectionID;
+		// if (!(!allConnections[userId] || allConnections[userId] == undefined)) {
+		// 	let filteredConnections = allConnections[userId].filter((element) => {
+		// 		return element.connectionID != connectionID;
+		// 	});
+		// 	allConnections[userId] = filteredConnections;
+		// }
 	} */
 
 	updateOnlineStatus = (userId, online) => {
@@ -267,7 +314,8 @@ class SSChatReact {
 		let dataToUpdate = { last_seen: new Date(), is_online: online };
 
 		UsersModel.findOneAndUpdate({ userId: userId }, dataToUpdate, {
-			new: false, useFindAndModify: false
+			new: false,
+			useFindAndModify: false
 		}, (err, updated_user) => {
 			if (updated_user) {
 				// console.log("On Update Online Status:: ", err, updated_user);
@@ -285,8 +333,6 @@ class SSChatReact {
 		let fondData = { userId: { $in: savedMessage.userList } };
 		// { "userName": requestData.userName, "password": requestData.password };
 		UsersModel.find(fondData, (err, userList) => {
-			// console.trace();
-			console.log('createNewRoomNotify', { err, userList });
 
 			userList = userList.map((element) => {
 				let x = Object.assign({}, {
@@ -345,7 +391,8 @@ class SSChatReact {
 				if (bookingConnectionList[requestData.bookingId] != null) {
 					bookingConnectionList[requestData.bookingId].forEach((con) => {
 						let response = {
-							current_location: requestData.current_location, userId: requestData.userId
+							current_location: requestData.current_location,
+							userId: requestData.userId
 						};
 						con.sendUTF(this.responseSuccess(200, "currentLocation", response, "Block Status Changed", true));
 					});
@@ -496,7 +543,8 @@ class SSChatReact {
 		} else if (requestData.type == 'createRoom') {
 
 			let rules = {
-				userList: 'required|array|min:1', createBy: 'required'
+				userList: 'required|array|min:1',
+				createBy: 'required'
 			};
 
 			let validation = new Validator(requestData, rules);
@@ -584,7 +632,8 @@ class SSChatReact {
 				}
 
 				RoomModel.findOneAndUpdate({ _id: mongoose.Types.ObjectId(roomId) }, dataToUpdate, {
-					new: false, useFindAndModify: false
+					new: false,
+					useFindAndModify: false
 				}, (err, updatedRoom) => {
 					// console.log("updatedRoom:::", updatedRoom);
 
@@ -630,7 +679,8 @@ class SSChatReact {
 			} else {
 
 				let fondData = {
-					"userName": requestData.userName, "password": requestData.password,
+					"userName": requestData.userName,
+					"password": requestData.password,
 
 				};
 				UsersModel.findOne(fondData, async (err, userData) => {
@@ -676,16 +726,18 @@ class SSChatReact {
 
 			/*
 			* {
-	"request": "login",
-	"userId": "4",
-	"fcm_token": "qasdfghfds",
-	"password": "123456",
-	"type": "loginOrCreate",
-	"userName": "ali@yopmail.com"
-}
-* */
+		"request": "login",
+		"userId": "4",
+		"fcm_token": "qasdfghfds",
+		"password": "123456",
+		"type": "loginOrCreate",
+		"userName": "ali@yopmail.com"
+	}
+	* */
 			let rules = {
-				userId: 'required|integer|string', password: 'required|string', userName: 'required|email'
+				userId: 'required|integer|string',
+				password: 'required|string',
+				userName: 'required|email'
 			};
 
 			let errorMessage = {
@@ -703,7 +755,9 @@ class SSChatReact {
 			} else {
 
 				let fondData = {
-					"userName": requestData.userName, "password": requestData.password, "userId": requestData.userId,
+					"userName": requestData.userName,
+					"password": requestData.password,
+					"userId": requestData.userId,
 				};
 
 				UsersModel.findOne(fondData, async (err, userData) => {
@@ -793,7 +847,7 @@ class SSChatReact {
 		} else if (requestData.type == 'updateProfile') {
 
 			/* if (!this.isFine(requestData._id)) {
-					connection.sendUTF(this.responseError(400, "updateProfile", "ObjectId is not provided.", true));
+				connection.sendUTF(this.responseError(400, "updateProfile", "ObjectId is not provided.", true));
 			} else */
 			if (!this.isFine(requestData.userId)) {
 				connection.sendUTF(this.responseError(400, "updateProfile", "userId is required.", true));
@@ -879,36 +933,17 @@ class SSChatReact {
 		const key = requestData.room;
 		console.log('key-----', key);
 
-
-		let rules = {
-			// userList: 'required|array|min:1'
-			room: 'string|required',
-			page: 'integer',
-			limit: 'integer',
-		};
-
-		let validation = new Validator(requestData, rules);
-
-		// if (validation.fails()) {
-		// 	connection.sendUTF(this.responseError(400, "allRooms", validation.errors, true));
-		// } else {
-		//
-		// }
-
-		// if (!this.isFine(key)) {
-		// 	connection.sendUTF(this.responseError(400, "message", "Room id is required {room}.", true));
-		if (validation.fails()) {
+		if (!this.isFine(key)) {
 			connection.sendUTF(this.responseError(400, "message", "Room id is required {room}.", true));
 		} else {
-			if (requestData.type === 'allMessage') {
 
-				console.log(`messageRequest`, requestData);
+			if (requestData.type === 'allMessage') {
 
 				let findObject = {
 					roomId: mongoose.Types.ObjectId(key)
 				};
 
-				let messageQueries = MessageModel.find(findObject, (err, messages) => {
+				MessageModel.find(findObject, (err, messages) => {
 					//res.send(messages);
 					// console.log(`allMessage Error:::${err} data:::`, messages);
 
@@ -923,39 +958,33 @@ class SSChatReact {
 						connection.sendUTF(this.responseError(404, "message", "Data not found.", true));
 					}
 				});
-				if (_.isNumber(requestData.page)) {
-					let page = requestData.page - 1;
-					let limit = _.isNumber(requestData.limit) ? requestData.limit : 20;
-					let skip = page * limit;
-					messageQueries.sort({ time: -1 }).limit(limit).skip(skip);
-				}
-
 
 			} else if (requestData.type === 'addMessage') {
 
 
 				/*
 				* {
-		* "roomId": "608437be5c7a813378e455b5",
-		* "room": "608437be5c7a813378e455b5",
-		* "message": "Hiiiiiiiiiiii",
-		* "receiver_id": "123456",
-		* "message_type": "TEXT",
-		*  "sender_id": "4",
-		*
-		"message_content": {
+			* "roomId": "608437be5c7a813378e455b5",
+			* "room": "608437be5c7a813378e455b5",
+			* "message": "Hiiiiiiiiiiii",
+			* "receiver_id": "123456",
+			* "message_type": "TEXT",
+			*  "sender_id": "4",
+			*
+			"message_content": {
 
-		},
-		"request": "message",
-		"type": "addMessage"
-}*/
+			},
+			"request": "message",
+			"type": "addMessage"
+		}*/
 
 
 				let rules = {
 					roomId: 'required|string',
 					room: 'required|string',
 					message_type: 'required|string',
-					sender_id: 'required|integer|string', //message: 'required|string'
+					sender_id: 'required|integer|string',
+					//message: 'required|string'
 				};
 				let validation = new Validator(requestData, rules);
 
@@ -970,13 +999,16 @@ class SSChatReact {
 					const messageModel = new MessageModel({
 						roomId: mongoose.Types.ObjectId(messageData.roomId),
 
-						message: messageData.message, message_type: messageData.message_type,
+						message: messageData.message,
+						message_type: messageData.message_type,
 
 						media: "",
 
-						receiver_id: messageData.receiver_id, time: new Date(),
+						receiver_id: messageData.receiver_id,
+						time: new Date(),
 
-						sender_id: messageData.sender_id, message_content: messageData.message_content
+						sender_id: messageData.sender_id,
+						message_content: messageData.message_content
 					});
 					// try {
 					messageModel.save().then((savedMessage) => {
@@ -1030,13 +1062,14 @@ class SSChatReact {
 
 							/* users: Object,
 
-	type: String, //group/individual
-	last_message: Object,
-	message_info: Object,
-	users_meta: Object,
-	userList: Array */
+				type: String, //group/individual
+				last_message: Object,
+				message_info: Object,
+				users_meta: Object,
+				userList: Array */
 							RoomModel.findOneAndUpdate({ _id: mongoose.Types.ObjectId(room._id) }, newMessageInfo, {
-								new: true, useFindAndModify: false
+								new: true,
+								useFindAndModify: false
 							}, (err, updatedRoom) => {
 								// console.log("RoomModel::: update", err, updatedRoom);
 								if (err) {
@@ -1079,18 +1112,18 @@ class SSChatReact {
 								console.log(`fcmTokens::: `, fcmTokens);
 
 								let message = { //this may vary according to the message type (single recipient, multicast, topic, et cetera)
-									// to: 'dmR-mgKqSuGymuJNQ5CsSR:APA91bFkMkphaI-La1rfnNOX1P8ND8aAzy5hjt4qRN4wqpGjWgfHLB3TbkSEhrQsf9v7_dDwlpv7l8fqwTiPOiHAEItKKS0gePF9hTN5nSfNqzBu1BlRGJC04W9BVXPaNEgjJS3ouBzV',
-
-									"registration_ids": fcmTokens, // collapse_key: 'your_collapse_key',
+									"registration_ids": fcmTokens,
+									// collapse_key: 'your_collapse_key',
 
 									notification: {
-										title: `New message from ${senderUserDetail?.firstName}`,
-										body: this.getLastMessage(messageData.message, messageData.message_type)
+										title: `New message from ${senderUserDetail.firstName}`,
+										body: this.getLastMessageForNotification(messageData.message, messageData.message_type)
 									},
 
 									data: {
 										payload: {
-											payload: "17", id: messageData.roomId
+											payload: "17",
+											id: messageData.roomId
 										},
 									}
 								};
@@ -1118,19 +1151,20 @@ class SSChatReact {
 			} else if (requestData.type === 'updateMessage') {
 
 				/*{
-		"room": "608437be5c7a813378e455b5",
-		"messageId": "60845847bf1e5b470dba2ccb",
-		"message_content": {
-		"asdasd": "sdasd"
-		},
-		"request": "message",
-		"type": "updateMessage",
-		"message": "asdasdasd"
-}*/
+			"room": "608437be5c7a813378e455b5",
+			"messageId": "60845847bf1e5b470dba2ccb",
+			"message_content": {
+			"asdasd": "sdasd"
+			},
+			"request": "message",
+			"type": "updateMessage",
+			"message": "asdasdasd"
+		}*/
 
 				let rules = {
 					//room: 'required|string',
-					messageId: 'required|string', // message: 'string',
+					messageId: 'required|string',
+					// message: 'string',
 					// message_content: 'object'
 				};
 				let validation = new Validator(requestData, rules);
@@ -1148,7 +1182,8 @@ class SSChatReact {
 					this.isFine(requestData.isDelete) && (dataToUpdate["message_type"] = "DELETE");
 
 					MessageModel.findOneAndUpdate({ _id: mongoose.Types.ObjectId(requestData.messageId) }, dataToUpdate, {
-						new: true, useFindAndModify: false
+						new: true,
+						useFindAndModify: false
 					}, (err, data) => {
 						console.warn("updateMessage", err, data);
 						if (data.roomId) {
@@ -1161,7 +1196,6 @@ class SSChatReact {
 									});
 								}
 							});
-
 						}
 					});
 				}
@@ -1228,13 +1262,15 @@ class SSChatReact {
 				};
 
 				BlockModel.updateOne({
-					"blockedBy": requestData.blockedBy, "blockedTo": requestData.blockedTo
+					"blockedBy": requestData.blockedBy,
+					"blockedTo": requestData.blockedTo
 				}, dataToUpdate, { upsert: true }, (err, data) => {
 					console.warn(err, data);
 					if (data) {
 
 						BlockModel.find({
-							"blockedBy": requestData.blockedBy, "blockedTo": requestData.blockedTo
+							"blockedBy": requestData.blockedBy,
+							"blockedTo": requestData.blockedTo
 						}, (err, data) => {
 							console.warn("allBlockUser", err, data);
 							if (data) {
@@ -1292,7 +1328,10 @@ class SSChatReact {
 		// user disconnected
 		connection.on('close', (event) => {
 			console.log({
-				time: new Date(), message: 'connection closed', id: connection.uId, event
+				time: new Date(),
+				message: 'connection closed',
+				id: connection.uId,
+				event
 			});
 
 			this.removeConnectionFromList(connection);
@@ -1306,7 +1345,8 @@ class SSChatReact {
 
 let ssChat = new SSChatReact();
 mongoose.connect(config.dbUrl, {
-	useNewUrlParser: true, useUnifiedTopology: true,
+	useNewUrlParser: true,
+	useUnifiedTopology: true,
 
 }, (error) => {
 	console.log({ message: 'mongodb connected', error });
