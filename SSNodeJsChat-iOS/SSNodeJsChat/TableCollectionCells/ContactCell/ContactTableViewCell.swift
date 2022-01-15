@@ -34,9 +34,9 @@ class ContactTableViewCell: UITableViewCell {
 //			}
 //		}
 		if data.is_selected {
-			checkImageView.image = UIImage(named: "ic_checked")
+			checkImageView.image = UIImage(named: "ic_check")
 		}else{
-			checkImageView.image = UIImage(named: "ic_unchecked")
+			checkImageView.image = UIImage(named: "ic_uncheck")
 		}
 	}
 }

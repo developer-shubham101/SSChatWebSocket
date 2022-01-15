@@ -16,14 +16,18 @@ import {
 import {useDispatch, useSelector} from "react-redux";
 import {wsSendMessage} from "../../modules/websocket";
 import FastImage from 'react-native-fast-image';
+import ActionSheet from 'react-native-actionsheet'
 import {
+  BLOCK_USER,
   MESSAGE_TYPE_CONTACT,
   MESSAGE_TYPE_DOCUMENT,
   MESSAGE_TYPE_IMAGE,
   MESSAGE_TYPE_LOCATION,
   MESSAGE_TYPE_TEXT,
   REQUEST_MESSAGE,
-  TYPE_ADD_MESSAGE
+  TYPE_ADD_MESSAGE,
+  TYPE_ALL_BLOCK_USER,
+  TYPE_BLOCKED_USER
 } from "../../components/const";
 import store from "../../modules/store";
 import * as t from "../../redux/types";
@@ -54,6 +58,7 @@ import {useRoom} from "../../hooks/useRoom";
 import moment from "moment";
 import {useMessages} from "../../hooks/useMessages";
 import {staticMapURL} from "../../utils/general";
+import {ROUTS_LIST} from "../../navigations/routsList";
 
 // export const useSelector: TypedUseSelectorHook<ReducerRoot> = useReduxSelector
 
@@ -73,6 +78,8 @@ const ChatScreen = ({
   const [timeStamp, setTimeStamp] = useState<number>();
   const {downloadFile, tasks} = useDownload();
   const {usersList} = useRoom();
+
+  const actionSheet = useRef();
   // const [currentPage, setCurrentPage] = useState(1);
 
   // console.log('Task', tasks);
@@ -90,6 +97,7 @@ const ChatScreen = ({
   let listRef = useRef<FlatList<MessageModel> | null>();
 
   const [chatUserDetail, setChatUserDetail] = useState<UserList | undefined>();
+  const [groupDetails, setGroupDetails] = useState({});
 
 
   // useEffect(() => {
@@ -103,11 +111,9 @@ const ChatScreen = ({
   // console.log('Max::::::', {sendersMessages, sectionData});
   console.log('Max:::::: messagesList', messagesList);
   useEffect(() => {
-    console.log('Shubham::: roomData', roomData);
 
     if (roomData?.type == RoomType.individual) {
       let otherUserID = roomData?.userList.find((e) => e != `${loggedInUser?.userId}`);
-
       const otherUser: UserList | undefined = usersList?.find((e) => {
         return e.userId.toString() == otherUserID;
       });
@@ -115,6 +121,19 @@ const ChatScreen = ({
       console.log('Shubham::: otherUser', otherUser);
     }
   }, [roomData, usersList]);
+
+
+  useEffect(() => {
+    if (loggedInUser) {
+      store.dispatch(wsSendMessage(
+        {
+          "request": BLOCK_USER,
+          "type": TYPE_ALL_BLOCK_USER,
+          "user": loggedInUser.userId.toString(),
+        },
+      ));
+    }
+  }, [loggedInUser]);
 
 
   useEffect(() => {
@@ -309,7 +328,7 @@ time: 1640685257419.384
           "longitude": "75.773746",
           "address": "Jhotwara, Jaipur, Rajasthan 302039"
         };
-        if (  roomData != null && loggedInUser != null) {
+        if (roomData != null && loggedInUser != null) {
           store.dispatch(wsSendMessage({
             "request": REQUEST_MESSAGE,
             "type": TYPE_ADD_MESSAGE,
@@ -490,6 +509,10 @@ time: 1640685257419.384
     }
   }
 
+  const showActionSheet = () => {
+    actionSheet?.current.show();
+  }
+
 
   /*const downloadFile = async (file: FileContent) => {
     console.log(file.file_url);
@@ -625,7 +648,7 @@ time: 1640685257419.384
                     overflow: 'hidden',
                   }}>
                     <Image
-                      source={{uri:  staticMapURL(locationContent.latitude, locationContent.longitude)}}
+                      source={{uri: staticMapURL(locationContent.latitude, locationContent.longitude)}}
                       style={{flex: 1}}/>
                   </View>
                   <View
@@ -820,7 +843,7 @@ time: 1640685257419.384
                       overflow: 'hidden',
                     }}>
                       <Image
-                        source={{uri:  staticMapURL(locationContent.latitude, locationContent.longitude)}}
+                        source={{uri: staticMapURL(locationContent.latitude, locationContent.longitude)}}
                         style={{flex: 1}}/>
                     </View>
                     <Text style={{
@@ -904,20 +927,41 @@ time: 1640685257419.384
 
   }
 
-  function chatDetailsView(chatUserDetail: UserList) {
-    return <View>
-      <FastImage
-        source={{uri: chatUserDetail.profile_pic}}
-        resizeMode={FastImage.resizeMode.contain}
-        style={{height: 20, width: 20, borderRadius: 4}}/>
-      <Text style={{color: "black", fontWeight: "bold"}}>
-        {`${chatUserDetail.firstName}`}
-      </Text>
-      <Text style={{color: "black"}}>
-        {chatUserDetail.is_online ? 'Online' : `Last Seen: ${chatUserDetail.last_seen}`}
-      </Text>
-    </View>;
+  function chatDetailsView() {
+    if (roomData == null) return;
+    if (roomData?.type == RoomType.group) {
+      return <TouchableOpacity
+        onPress={() => {
+          navigation.navigate(ROUTS_LIST.GroupDetails)
+        }}>
+        <FastImage
+          source={{uri: roomData.group_details?.group_image}}
+          resizeMode={FastImage.resizeMode.contain}
+          style={{height: 100, width: 100, borderRadius: 50, backgroundColor: 'rgba(154,154,154,0.54)'}}/>
+        <Text style={{color: "black", fontWeight: "bold"}}>
+          {`${roomData.group_details?.group_name}`}
+        </Text>
+
+      </TouchableOpacity>;
+    }
+
+    if (chatUserDetail != null) {
+      return <View>
+        <FastImage
+          source={{uri: chatUserDetail.profile_pic}}
+          resizeMode={FastImage.resizeMode.contain}
+          style={{height: 20, width: 20, borderRadius: 4}}/>
+        <Text style={{color: "black", fontWeight: "bold"}}>
+          {`${chatUserDetail.firstName}`}
+        </Text>
+        <Text style={{color: "black"}}>
+          {chatUserDetail.is_online ? 'Online' : `Last Seen: ${chatUserDetail.last_seen}`}
+        </Text>
+      </View>;
+    }
+
   }
+
 
   const [currentVisibleIndex, setCurrentVisibleIndex] = useState(0);
   const onContentOffsetChanged = (distanceFromTop: number) => {
@@ -953,16 +997,40 @@ time: 1640685257419.384
   };
   const [showScrollBottom, setShowScrollBottom] = useState(false);
 
+
+  const onPressMute = (index) => {
+    if (loggedInUser && chatUserDetail) {
+      store.dispatch(wsSendMessage(
+        {
+          "request": BLOCK_USER,
+          "type": TYPE_BLOCKED_USER,
+
+          "blockedBy": loggedInUser.userId.toString(),
+          "blockedTo": chatUserDetail.userId,
+          "isBlock": true,
+        },
+      ));
+    }
+  }
+
   return (
     <SafeAreaView style={{flex: 1}}>
       <View style={styles.container}>
         <TouchableOpacity onPress={() => {
           navigation.goBack();
-        }}><Text style={{color: "black", fontWeight: "bold", marginVertical: 10}}>
-          BACK
-        </Text></TouchableOpacity>
+        }}>
+          <Text style={{color: "black", fontWeight: "bold", marginVertical: 10}}>
+            BACK
+          </Text>
+        </TouchableOpacity>
+        {/*<TouchableOpacity onPress={showActionSheet}>
+          <Text style={{color: "black", fontWeight: "bold", marginVertical: 10}}>
+            Options
+          </Text>
+        </TouchableOpacity>*/}
         <View style={styles.flatListContainer}>
-          {(chatUserDetail != null) && chatDetailsView(chatUserDetail)}
+
+          {chatDetailsView()}
 
           <FlatList
             ref={(r2Ref: FlatList<MessageModel> | null) => listRef.current = r2Ref}
@@ -1084,6 +1152,14 @@ time: 1640685257419.384
           },
         }}
       />
+      <ActionSheet
+        ref={o => actionSheet.current = o}
+        title={'Which one do you like ?'}
+        options={['Apple', 'Banana', 'cancel']}
+        cancelButtonIndex={2}
+        destructiveButtonIndex={1}
+        onPress={onPressMute}
+      />
     </SafeAreaView>
   );
 };
@@ -1109,4 +1185,4 @@ const styles = StyleSheet.create({
 });
 
 
-export default (ChatScreen);
+export default ChatScreen;

@@ -6,16 +6,16 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 object APIClient {
-//    const val IMAGE_URL = "http://testapi.newdevpoint.in/"
+    const val IMAGE_URL = "http://testapi.newdevpoint.in/"
+    const val BASE_URL_WEB_SOCKET = "ws://sschat-react.herokuapp.com/V1"
+
+    private const val BASE_URL = "http://testapi.newdevpoint.in/"
+
+
+//    const val IMAGE_URL = "http://172.16.16.231:8000/"
 //    const val BASE_URL_WEB_SOCKET = "ws://172.16.16.231:1337/V1"
 //
-//    private const val BASE_URL = "http://testapi.newdevpoint.in/"
-
-
-    const val IMAGE_URL = "http://172.16.16.231:8000/"
-    const val BASE_URL_WEB_SOCKET = "ws://172.16.16.231:1337/V1"
-
-    private const val BASE_URL = "http://172.16.16.231:8000/"
+//    private const val BASE_URL = "http://172.16.16.231:8000/"
 
 
     private var retrofit: Retrofit? = null

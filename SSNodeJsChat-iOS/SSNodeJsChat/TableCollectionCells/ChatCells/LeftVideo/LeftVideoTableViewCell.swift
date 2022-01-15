@@ -63,7 +63,7 @@ class LeftVideoTableViewCell: UITableViewCell, DownloadTableCell {
 			break
 		}
 		
-		time.text = obj.message_on
+        time.text = "By: \(obj.sender_detail.firstName) (\(obj.message_on))"
 		chatImage.clipsToBounds = true
 		chatImage.sd_setImage(with: message_content.file_meta.thumbnail, completed: { (image, error, cache, url) in
 			

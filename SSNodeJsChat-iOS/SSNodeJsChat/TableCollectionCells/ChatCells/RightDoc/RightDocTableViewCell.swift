@@ -48,7 +48,7 @@ class RightDocTableViewCell: UITableViewCell, DownloadTableCell  {
 		
 		
 		
-		time.text = obj.message_on
+        time.text = "By: \(obj.sender_detail.firstName) (\(obj.message_on))"
 		if let link:URL = URL(string: message_content.file_url) {
 			docName.text = message_content.file_meta.file_name
 			docExt.text =  link.pathExtension

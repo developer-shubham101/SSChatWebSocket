@@ -1,7 +1,7 @@
 import React, {useEffect} from 'react';
 import {Provider} from 'react-redux';
 
-import Navigator from './Navigator';
+import Navigator from './navigations/Navigator';
 
 import store from './modules/store';
 import {wsConnect} from './modules/websocket';

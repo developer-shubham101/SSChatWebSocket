@@ -124,6 +124,7 @@ class AllUsersListActivity : AppCompatActivity(), WebSocketObserver {
             jsonObject.put("userList", usersList)
             jsonObject.put("type", "createRoom")
             jsonObject.put("room_type", "group")
+            jsonObject.put("createBy", UserDetails.myDetail.id)
             val groupDetails = JSONObject()
             groupDetails.put("group_name", roomListBinding.userListGroupName.text)
             groupDetails.put("about_group", "This is Just a Sample Group")

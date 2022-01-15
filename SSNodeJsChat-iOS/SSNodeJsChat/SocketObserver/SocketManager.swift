@@ -29,7 +29,7 @@ class SocketManager: SocketMessage {
     fileprivate var observersList = Array<SocketObserver>()
     fileprivate var isNotify : Bool = false
     
-    var socket = WebSocket(url: URL(string: "ws://172.16.16.153:1337/V1")!, protocols: ["chat"])
+    var socket = WebSocket(url: URL(string: NetworkManager.URL_WEB_SOCKET)!, protocols: ["chat"])
     
     func connectSocket(notify: Bool) {
         self.isNotify =  notify

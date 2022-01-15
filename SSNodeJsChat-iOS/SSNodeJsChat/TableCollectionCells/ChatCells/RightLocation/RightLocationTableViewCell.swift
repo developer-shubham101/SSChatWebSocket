@@ -23,7 +23,7 @@ class RightLocationTableViewCell: UITableViewCell {
 		// Configure the view for the selected state
 	}
 	func configData(obj: ChatModel){
-		time.text = obj.message_on
+        time.text = "By: \(obj.sender_detail.firstName) (\(obj.message_on))"
 		
 		if let locationModel: LocationModel = obj.message_content as? LocationModel {
 			locationName.text = locationModel.name

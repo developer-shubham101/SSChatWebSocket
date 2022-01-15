@@ -22,6 +22,11 @@ export interface RoomList {
     userList: string[];
     _id: string;
     users: { [key: string]: boolean };
+    group_details: {
+        group_name: string;
+        group_image: string;
+        about_group: string;
+    } | undefined;
     type: string;
     last_message_time: Date;
     createBy: string;
@@ -110,5 +115,6 @@ export class MediaType {
 
 export class RoomType {
     static individual = "individual";
+    static group = "group";
 
 }

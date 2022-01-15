@@ -8,12 +8,13 @@
 import UIKit
 import Starscream
 
-class AllUserListViewController: UIViewController{
+class AllUserListViewController: AppViewController{
     
     
     @IBOutlet weak var tableView: UITableView!
     
     fileprivate var tableItems: [UserDetailsModel] = []
+    var isSelectedGroup: Bool = false
     
     override func viewWillAppear(_ animated: Bool) {
         initCollection()
@@ -27,7 +28,17 @@ class AllUserListViewController: UIViewController{
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        SocketManager.shared.registerToScoket(observer: self )
+        if (isSelectedGroup){
+            let editButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonItem.SystemItem.save, target: self, action: #selector(onClickedToolbeltButton(sender:)))
+            navigationItem.rightBarButtonItems = [editButton]
+            title = "Create New Room"
+        } else {
+            let editButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonItem.SystemItem.compose, target: self, action: #selector(onClickedToolBarCreateGroup(sender:)))
+            navigationItem.rightBarButtonItems = [editButton]
+            title = "Start Chat With"
+        }
+        
+        SocketManager.shared.registerToScoket(observer: self)
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -67,6 +78,47 @@ class AllUserListViewController: UIViewController{
         //        self.navigationController?.pushViewController(vc, animated: true)
     }
     
+    @objc func onClickedToolbeltButton(sender: AnyObject) {
+        openNameDialog()
+    }
+    
+    @objc func onClickedToolBarCreateGroup(sender: AnyObject) {
+        let vc = AllUserListViewController()
+        vc.isSelectedGroup = true
+        self.navigationController?.pushViewController(vc, animated: true)
+    }
+    func openNameDialog() {
+        alertWithTextField(title: "Group Name", message: "Enter group name", placeholder: "eg: My Group") { result in
+            if (result.isEmpty) {
+//                self.openNameDialog()
+            } else {
+                
+                var users = self.tableItems.map { element in
+                    return element.userId
+                }
+                users.append(LoginUserModel.shared.userId)
+                
+                let groupDetails: [String: Any] = [
+                    "group_name": result,
+                    "about_group": "This is Just a Sample Group"
+                ]
+                
+                let json: [String: Any] = ["type": "createRoom",
+                                           "userList": users,
+                                           "createBy": LoginUserModel.shared.userId,
+                                           "request":"room",
+                                           "room_type": "group",
+                                           "group_details": groupDetails
+                ]
+                if let jsonString: NSString = JsonOperation.toJsonStringFrom(dictionary: json) {
+                    print(jsonString)
+                    SocketManager.shared.sendMessageToSocket(message: jsonString as String)
+                }
+                
+            }
+        }
+    }
+    
 }
 extension AllUserListViewController: UITableViewDelegate, UITableViewDataSource {
     
@@ -86,20 +138,25 @@ extension AllUserListViewController: UITableViewDelegate, UITableViewDataSource 
             tableView.register(UINib(nibName: identifier, bundle: nil), forCellReuseIdentifier: identifier)
             cell = tableView.dequeueReusableCell(withIdentifier: identifier) as? UserTableViewCell
         }
-        cell.configData(obj: tableItems[indexPath.row])
+        cell.configData(obj: tableItems[indexPath.row], isSelectedGroup: isSelectedGroup)
         return cell
     }
     
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        
-        let json: [String: Any] = ["type": "createRoom",
-                                   "userList": [LoginUserModel.shared.userId, tableItems[indexPath.row].userId],
-                                   "createBy": LoginUserModel.shared.userId,
-                                   "request":"room"]
-        if let jsonString: NSString = JsonOperation.toJsonStringFrom(dictionary: json) {
-            SocketManager.shared.sendMessageToSocket(message: jsonString as String)
+        if (isSelectedGroup) {
+            tableItems[indexPath.row].isSelectedForGroup = !tableItems[indexPath.row].isSelectedForGroup
+            tableView.reloadData()
+        }else{
+            let json: [String: Any] = ["type": "createRoom",
+                                       "userList": [LoginUserModel.shared.userId, tableItems[indexPath.row].userId],
+                                       "createBy": LoginUserModel.shared.userId,
+                                       "request":"room"]
+            if let jsonString: NSString = JsonOperation.toJsonStringFrom(dictionary: json) {
+                SocketManager.shared.sendMessageToSocket(message: jsonString as String)
+            }
         }
+        
         
         //
         //      let vc:SingleChatViewController = self.storyboard?.instantiateViewController(withIdentifier: "SingleChatViewController") as! SingleChatViewController
@@ -121,7 +178,7 @@ extension AllUserListViewController: UITableViewDelegate, UITableViewDataSource 
 // MARK: - WebSocketDelegate
 extension AllUserListViewController:SocketObserver {
     func registerFor() -> [ResponseType] {
-        return [.allUsers]
+        return [.allUsers, .createRoom]
     }
     
     func brodcastSocketMessage(to observerWithIdentifire: ResponseType, statusCode: Int, data: [String : Any], message: String) {

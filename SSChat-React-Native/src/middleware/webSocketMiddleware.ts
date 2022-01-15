@@ -1,14 +1,14 @@
 import * as actions from '../modules/websocket';
 import * as t from '../redux/types';
-import {appOptions} from "../config/appOptions";
+import { appOptions } from "../config/appOptions";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {STORAGE_USER_INFO} from "../components/const";
+import { STORAGE_USER_INFO } from "../components/const";
 
 type StoreType = { getState: Function, dispatch: Function };
 const webSocketMiddleware = () => {
   let socket: WebSocket | null = null;
   const onOpen = (store: StoreType) => (event) => {
-    console.log('Shubham:::: Testing', typeof event, {event});
+    console.log('Shubham:::: Testing', typeof event, { event });
     store.dispatch(actions.wsConnected(event.target.url));
   };
 
@@ -23,7 +23,7 @@ const webSocketMiddleware = () => {
 
   const onMessage = (store: StoreType) => (event: WebSocketMessageEvent) => {
     const payload = JSON.parse(event.data);
-    console.debug('onMessage Payload', payload);
+    console.log('onMessage Payload', payload);
     switch (payload.type) {
       case 'loginOrCreate':
         if (payload.statusCode == 200) {
@@ -33,10 +33,10 @@ const webSocketMiddleware = () => {
             console.trace('Found Error', e);
           });
         }
-        store.dispatch({type: t.USER_LOGIN_OR_SIGNUP, payload: payload.data});
+        store.dispatch({ type: t.USER_LOGIN_OR_SIGNUP, payload: payload.data });
         break;
       case 'allUsers':
-        store.dispatch({type: t.ALL_USER_LIST, payload: payload.data});
+        store.dispatch({ type: t.ALL_USER_LIST, payload: payload.data });
         break;
       case 'createRoom':
         console.log('CREATE_ROOM', payload.data.newRoom);
@@ -47,10 +47,10 @@ const webSocketMiddleware = () => {
         });
         break;
       case 'allRooms':
-        store.dispatch({type: t.ALL_ROOMS_DATA, payload: payload.data});
+        store.dispatch({ type: t.ALL_ROOMS_DATA, payload: payload.data });
         break;
       case 'allMessages':
-        store.dispatch({type: t.ALL_MESSAGE_IN_ROOM, payload: payload.data});
+        store.dispatch({ type: t.ALL_MESSAGE_IN_ROOM, payload: payload.data });
         break;
       case 'roomsModified':
         // store.dispatch({ type: t.MESSAGE_IN_ROOM, payload: payload.data })
@@ -58,13 +58,18 @@ const webSocketMiddleware = () => {
       case 'message':
         console.log('message=======================', payload);
         payload.statusCode == 200
-          ? store.dispatch({type: t.ALL_MESSAGE_IN_ROOM, payload: payload.data})
+          ? store.dispatch({ type: t.ALL_MESSAGE_IN_ROOM, payload: payload.data })
           : payload.statusCode == 201 &&
-          store.dispatch({type: t.MESSAGE_IN_ROOM, payload: payload.data});
+          store.dispatch({ type: t.MESSAGE_IN_ROOM, payload: payload.data });
         break;
       case 'userModified':
-        store.dispatch({type: t.USER_MODIFY, payload: payload.data});
+        store.dispatch({ type: t.USER_MODIFY, payload: payload.data });
         break;
+
+      case 'allBlockUser':
+        store.dispatch({ type: t.USER_BLOCK_MODIFY, payload: payload.data });
+        break;
+
       default:
         break;
     }

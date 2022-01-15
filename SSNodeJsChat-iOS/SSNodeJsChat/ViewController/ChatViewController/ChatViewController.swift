@@ -100,6 +100,10 @@ class ChatViewController: AppViewController, CNContactViewControllerDelegate, UI
     fileprivate static var clipboard: ChatModel?
     fileprivate var audioPlayer: SSAudioPlayer?
     
+    
+    
+    var roomInfo: ChatRoomModel?
+    
     ///if it is not group
     var individualDetail: UserDetailsModel?
     fileprivate var isMute: Bool = false
@@ -128,7 +132,11 @@ class ChatViewController: AppViewController, CNContactViewControllerDelegate, UI
     
     //MARK:- from previous controller
     var roomId: String = ""
-    var isGroup: Bool = false
+    var isGroup: Bool {
+        get {
+            return roomInfo?.isGroup ?? false
+        }
+    }
     
     
     
@@ -197,19 +205,28 @@ class ChatViewController: AppViewController, CNContactViewControllerDelegate, UI
     
     var lpgr: UILongPressGestureRecognizer!
     
-    
+    @objc func didTapGroupInfo(_ sender: UITapGestureRecognizer? = nil) {
+        let vc = GroupInformationViewController()
+        vc.roomInfo = roomInfo
+        self.navigationController?.pushViewController(vc, animated: true)
+    }
     fileprivate func setUpName(){
         if (isGroup){
-            
+            chatUserName.text = roomInfo?.groupDetail?.groupName
+            chatUserProfile.sd_setImage(with: roomInfo?.groupDetail?.groupIcon.getMediaUrl, completed: {(image, error, cache, url) in
+
+            })
+            let tap = UITapGestureRecognizer(target: self, action: #selector(self.didTapGroupInfo(_:)))
+            chatUserProfile.isUserInteractionEnabled = true
+            chatUserProfile.addGestureRecognizer(tap)
+
         } else {
-            if let tmpIndividualDetail = individualDetail{
+            if let tmpIndividualDetail = individualDetail {
                 chatUserName.text = tmpIndividualDetail.firstName
                 chatUserOnlineStatus.text = tmpIndividualDetail.is_online ? "Online" : tmpIndividualDetail.last_seen
-                
-                
-                //                chatUserProfile.sd_setImage(with: NetworkManager.URL_ABOUT_US, completed: { (image, error, cache, url) in
-                //
-                //                })
+                chatUserProfile.sd_setImage(with: tmpIndividualDetail.profile_pic.getMediaUrl, completed: {(image, error, cache, url) in
+
+                })
             }
             
         }
@@ -1612,7 +1629,7 @@ extension ChatViewController:UIImagePickerControllerDelegate, UINavigationContro
         
         pickerController.didSelectAssets = { (assets: [DKAsset]) in
             print("didSelectAssets")
-            print(assets[0].type == .video)
+//            print(assets[0].type == .video)
             
             for asset in assets {
                 switch asset.type {

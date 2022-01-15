@@ -46,7 +46,7 @@ public class ChatModel {
 //	public var createdTime:String = ""
 	
 	//	public var height: CGFloat = 0title
-	public var createdDate: Date = Date()
+	public var createdDate: Date =    Date()
 	
 	
 	required public init() {}

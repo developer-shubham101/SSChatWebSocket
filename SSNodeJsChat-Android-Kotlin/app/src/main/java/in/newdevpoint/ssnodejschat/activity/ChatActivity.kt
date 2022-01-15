@@ -173,7 +173,7 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener,
     }
 
     private val roomInfo: Unit
-        private get() {
+        get() {
             val messageMap = HashMap<String?, Any?>()
             messageMap["type"] = "roomsDetails"
             messageMap["roomId"] = _roomId
@@ -278,9 +278,9 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener,
                 chatList[tempDate] = correspondingChatList
             }
             correspondingChatList.add(chatModel)
-            Collections.sort(correspondingChatList) { o1: ChatModel, o2: ChatModel -> o1.messageDate.compareTo(o2.messageDate) }
+            correspondingChatList.sortWith(Comparator { o1: ChatModel, o2: ChatModel -> o1.messageDate.compareTo(o2.messageDate) })
             val keys = ArrayList(chatList.keys)
-            Collections.sort(keys)
+            keys.sort()
             adapter.clearAll()
             for (key in keys) {
                 val chatForThatDay = chatList[key]!!
@@ -291,7 +291,7 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener,
             if (showMessageCount && chatModel.sender_detail.id != UserDetails.myDetail.id) {
                 noOfNewMessages += 1
                 binding.chatGoToBottom.visibility = View.VISIBLE
-                binding.chatNewMessageCount.text = Integer.toString(noOfNewMessages)
+                binding.chatNewMessageCount.text = noOfNewMessages.toString()
                 if (noOfNewMessages <= 1) {
                     val layout = binding.chatRecyclerView.layoutManager as LinearLayoutManager?
                     layout!!.scrollToPosition(layout.findLastVisibleItemPosition() + 1)
@@ -315,7 +315,7 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener,
     private fun resetNewMessageCount() {
         noOfNewMessages = 0
         binding.chatGoToBottom.visibility = View.GONE
-        binding.chatNewMessageCount.text = Integer.toString(noOfNewMessages)
+        binding.chatNewMessageCount.text = noOfNewMessages.toString()
     }
 
     private fun setUpRecyclerView(): ChatAdapter {
@@ -409,15 +409,19 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener,
             if (isAppDownloaded) {
                 chatModel!!.downloadStatus = ChatModel.DownloadStatus.DOWNLOADED
                 val filePath = downloadFile.absolutePath
-                if (FileOpenUtility.isVideo(filePath)) {
-                    val intent = Intent(this, PlayerActivity::class.java)
-                    intent.putExtra(PlayerActivity.INTENT_EXTRA_FILE_PATH, filePath)
-                    startActivity(intent)
-                } else if (FileOpenUtility.isAudio(filePath)) {
-                    binding.audioPlayerFragment.visibility = View.VISIBLE
-                    uploadFragment.play(filePath)
-                } else {
-                    FileOpenUtility.openFile(this@ChatActivity, filePath)
+                when {
+                    FileOpenUtility.isVideo(filePath) -> {
+                        val intent = Intent(this, PlayerActivity::class.java)
+                        intent.putExtra(PlayerActivity.INTENT_EXTRA_FILE_PATH, filePath)
+                        startActivity(intent)
+                    }
+                    FileOpenUtility.isAudio(filePath) -> {
+                        binding.audioPlayerFragment.visibility = View.VISIBLE
+                        uploadFragment.play(filePath)
+                    }
+                    else -> {
+                        FileOpenUtility.openFile(this@ChatActivity, filePath)
+                    }
                 }
             } else {
                 val task: DownloadRequest? = DownloadUtility.downloadList.get(MD5.stringToMD5(downloadUrl))
@@ -539,7 +543,7 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener,
     }
 
     private val contacts: Unit
-        private get() {
+        get() {
             val intent = Intent(this, ContactListActivity::class.java)
             startActivityForResult(intent, REQUEST_SELECT_CONTACTS)
         }
@@ -916,7 +920,7 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener,
         if (fragment != null) {
             supportFragmentManager.beginTransaction().remove(fragment).commit()
             if (data != null) {
-                if (data.thumbnail != null && !data.thumbnail.isEmpty()) {
+                if (data.thumbnail != null && data.thumbnail.isNotEmpty()) {
                     messageData!![MediaMetaModel.KEY_FILE_THUMB] = APIClient.IMAGE_URL + data.thumbnail
                 }
                 val messageContent = HashMap<String, Any?>()
@@ -945,7 +949,7 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener,
     }
 
     private val blockList: Unit
-        private get() {
+        get() {
             val jsonObject = JSONObject()
             try {
                 jsonObject.put("type", "allBlockUser")
@@ -1092,7 +1096,7 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener,
     override val activityName: String = ChatActivity::class.java.name
 
     override fun registerFor(): Array<ResponseType> {
-        return arrayOf<ResponseType>(
+        return arrayOf(
                 ResponseType.RESPONSE_TYPE_MESSAGES,
                 ResponseType.RESPONSE_TYPE_USER_MODIFIED,
                 ResponseType.RESPONSE_TYPE_USER_BLOCK_MODIFIED,
