@@ -5,6 +5,8 @@ import `in`.newdevpoint.ssnodejschat.databinding.RowUserListBinding
 import `in`.newdevpoint.ssnodejschat.model.FSUsersModel
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -33,7 +35,12 @@ class UsersListAdapter(private val callBack: CallBackForSinglePost) : RecyclerVi
         val item: FSUsersModel = list[position]
 
         holder.binding.rowAllUserName.setText(item.name)
-        holder.binding.rowAllUserCheck.isChecked = item.isChecked
+        if(item.isChecked){
+            holder.binding.rowAllUserChked.visibility=VISIBLE
+        }else{
+            holder.binding.rowAllUserChked.visibility=GONE
+        }
+      //  holder.binding.rowAllUserCheck.isChecked = item.isChecked
 
 
 //        if(item.isOnline()){
@@ -60,8 +67,8 @@ class UsersListAdapter(private val callBack: CallBackForSinglePost) : RecyclerVi
     }
 
     interface CallBackForSinglePost {
-        fun onClick(position: Int)
-        fun onClick(item: FSUsersModel)
+       // fun onClick(position: Int)
+        fun onClick(item: FSUsersModel,position: Int)
     }
 
     inner class MyViewHolder(val binding: RowUserListBinding) : RecyclerView.ViewHolder(binding.root) {
@@ -72,7 +79,7 @@ class UsersListAdapter(private val callBack: CallBackForSinglePost) : RecyclerVi
                     tmpItem.isChecked = !tmpItem.isChecked
                     notifyDataSetChanged()
                 } else {
-                    callBack.onClick(list[adapterPosition])
+                    callBack.onClick(list[adapterPosition], adapterPosition)
                 }
             }
         }

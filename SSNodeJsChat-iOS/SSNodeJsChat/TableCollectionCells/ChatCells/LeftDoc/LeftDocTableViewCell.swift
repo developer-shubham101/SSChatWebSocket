@@ -25,7 +25,7 @@ class LeftDocTableViewCell: UITableViewCell, DownloadTableCell  {
 		
 		// Configure the view for the selected state
 	}
-	func configData(obj: ChatModel){
+	func configData(obj: ChatModel, isGroup: Bool){
 		let message_content = (obj.message_content as! MediaModel)
 		
 		switch obj.downloadStatus {
@@ -47,7 +47,11 @@ class LeftDocTableViewCell: UITableViewCell, DownloadTableCell  {
 		
 		
 		
-        time.text = "By: \(obj.sender_detail.firstName) (\(obj.message_on))"
+        if isGroup {
+            time.text = "By: \(obj.sender_detail.firstName) (\(obj.message_on))"
+        } else {
+            time.text = obj.message_on
+        }
 		if let link:URL = URL(string: message_content.file_url) {
 			docName.text = message_content.file_meta.file_name
 			docExt.text =  link.pathExtension

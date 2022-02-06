@@ -16,6 +16,7 @@
     <color name="colorWhite">#ffffff</color>
 
     <color name="colorOrange">#e25e31</color>
+    <color name="colorOrangeTrans">#95e25e31</color>
 
 
 </resources>

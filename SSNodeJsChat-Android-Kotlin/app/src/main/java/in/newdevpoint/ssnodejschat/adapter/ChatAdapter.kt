@@ -17,6 +17,7 @@ import android.content.IntentFilter
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.GONE
 import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.RotateAnimation
@@ -180,6 +181,8 @@ class ChatAdapter(private val context: Context, private val chatCallbacks: ChatC
         override fun bindData(position: Int) {
             val `object`: ChatModel = getDataInPosition(position)!!
             binding.chatRightTextMessage.text = `object`.message
+           // binding.chatRightTextUserName.text = `object`.sender_detail.name
+            binding.chatRightTextUserName.visibility=GONE
             binding.chatRightTextTime.text = `object`.message_on
             binding.root.setOnLongClickListener {
                 chatCallbacks.onLongClick(`object`)
@@ -372,6 +375,7 @@ class ChatAdapter(private val context: Context, private val chatCallbacks: ChatC
         override fun bindData(position: Int) {
             val `object`: ChatModel = getDataInPosition(position)!!
             binding.chatLeftTextMessage.text = `object`.message
+            binding.chatLeftTextUserName.text = `object`.sender_detail.name
             binding.chatLeftTextTime.text = `object`.message_on
             binding.root.setOnLongClickListener {
                 chatCallbacks.onLongClick(`object`)

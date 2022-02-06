@@ -45,6 +45,7 @@ object APIClient {
         const val REQUEST_TYPE_LOGIN = "login"
         const val REQUEST_TYPE_CREATE_CONNECTION = "create_connection"
         const val REQUEST_TYPE_ROOM = "room"
+        const val REQUEST_TYPE_GROUP_ROOM = "group"
         const val REQUEST_TYPE_USERS = "users"
         const val REQUEST_TYPE_MESSAGE = "message"
         const val REQUEST_TYPE_BLOCK_USER = "block_user"

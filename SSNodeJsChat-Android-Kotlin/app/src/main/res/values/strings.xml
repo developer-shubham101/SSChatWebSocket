@@ -10,5 +10,7 @@
     <string name="validation_password">Please enter Password</string>
     <string name="validation_valid_email">Please enter valid E-mail</string>
     <string name="default_notification_channel_id">Default</string>
+    <string name="StartChat">Start Chat</string>
+    <string name="CreateGroup">CreateGroup</string>
 
 </resources>

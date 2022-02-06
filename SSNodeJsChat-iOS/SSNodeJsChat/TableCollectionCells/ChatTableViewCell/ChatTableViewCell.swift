@@ -16,6 +16,7 @@ class ChatTableViewCell: UITableViewCell {
     @IBOutlet weak var lastMessage: UILabel!
     @IBOutlet weak var messageTime: UILabel!
     @IBOutlet weak var rootVIew: UIView!
+    @IBOutlet weak var onlineVIew: UIView!
 
     
     override func awakeFromNib() {
@@ -30,8 +31,9 @@ class ChatTableViewCell: UITableViewCell {
     }
     func configData(obj: ChatRoomModel) {
         if obj.isGroup {
-            if let groupDetail: GroupModel =  obj.groupDetail {
+            if let groupDetail: GroupModel = obj.groupDetail {
                 username.text = groupDetail.groupName
+                onlineVIew.isHidden = true
 //                rootVIew.backgroundColor = individualDetail.is_online ? .systemGreen : .systemRed
                 
                 profilePic.sd_setImage(with: URL(string: groupDetail.groupIcon), completed: { (image, error, cache, url) in
@@ -40,10 +42,11 @@ class ChatTableViewCell: UITableViewCell {
                     }
                 })
             }
-        }else{
+        } else {
             if let individualDetail: UserDetailsModel = RoomListViewController.userDetailsList[obj.individualUserId] {
-                username.text = "\(individualDetail.firstName)\n\(individualDetail.userName)"
-                rootVIew.backgroundColor = individualDetail.is_online ? .systemGreen : .systemRed
+                username.text = !(individualDetail.firstName.isEmpty) ? individualDetail.firstName : individualDetail.userName
+                onlineVIew.isHidden = false
+                onlineVIew.backgroundColor = individualDetail.is_online ? .systemGreen : .systemRed
                 
                 profilePic.sd_setImage(with: URL(string: individualDetail.profile_pic), completed: { (image, error, cache, url) in
                     if ((error) != nil) {

@@ -24,7 +24,7 @@ class PreferenceUtils {
         private const val PREF_LANGUAGE = "PREF_LANGUAGE"
         private const val PREF_CURRENCY = "PREF_CURRENCY"
         private const val PREF_IS_USER_LOGIN = false
-        private var registrationModel: FSUsersModel? = null
+        var registrationModel: FSUsersModel? = null
         fun setPrefIsUserLogin(context: Context, isLogin: Boolean) {
             val editor = context.getSharedPreferences(USER_PREFS_NAME, Context.MODE_PRIVATE).edit()
             editor.putBoolean(PREF_IS_LOGIN, isLogin)
@@ -103,13 +103,7 @@ class PreferenceUtils {
             //        String userRow = sp.getString(PREF_START_TIME_SESSION_ID, 0);
         }
 
-        fun getRegisterUser(context: Context?): FSUsersModel? {
-            if (registrationModel == null) {
-                refresh(context)
-            }
-            //        if (registrationModel == null) {
-//            registrationModel = new CurrentUserModel();
-//        }
+        fun getRegisterUser(): FSUsersModel? {
             return registrationModel
         }
 

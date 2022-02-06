@@ -1276,7 +1276,7 @@ extension ChatViewController: UITableViewDelegate, UITableViewDataSource {
                 cell.time.frame.origin.y = cell.wrapperView.frame.maxY + 5 //cell.wrapperView.frame.height - cell.time.frame.height - 5
                 cell.time.frame.size.width = self.view.frame.width
                 cell.selectionStyle = .none
-                cell.configData(obj: element)
+                cell.configData(obj: element, isGroup: isGroup)
                 
                 return cell
             }else if(element.message_type == MessageType.image ){
@@ -1287,7 +1287,7 @@ extension ChatViewController: UITableViewDelegate, UITableViewDataSource {
                     cell = tableView.dequeueReusableCell(withIdentifier: identifier) as? LeftImageTableViewCell
                 }
                 cell.selectionStyle = .none
-                cell.configData(obj: element)
+                cell.configData(obj: element, isGroup: isGroup)
                 return cell
             }else if(element.message_type == MessageType.video ){
                 let identifier = "LeftVideoTableViewCell"
@@ -1300,7 +1300,7 @@ extension ChatViewController: UITableViewDelegate, UITableViewDataSource {
                 
                 let message_content = element.message_content as! MediaModel
                 verifyDownloadProgress(message_content: message_content, indexPath: indexPath, element: element)
-                cell.configData(obj: element)
+                cell.configData(obj: element, isGroup: isGroup)
                 
                 return cell
             }else if(element.message_type == MessageType.location ){
@@ -1311,7 +1311,7 @@ extension ChatViewController: UITableViewDelegate, UITableViewDataSource {
                     cell = tableView.dequeueReusableCell(withIdentifier: identifier) as? LeftLocationTableViewCell
                 }
                 cell.selectionStyle = .none
-                cell.configData(obj: element)
+                cell.configData(obj: element, isGroup: isGroup)
                 return cell
             }else if(element.message_type == MessageType.contact ){
                 let identifier = "LeftContactTableViewCell"
@@ -1321,7 +1321,7 @@ extension ChatViewController: UITableViewDelegate, UITableViewDataSource {
                     cell = tableView.dequeueReusableCell(withIdentifier: identifier) as? LeftContactTableViewCell
                 }
                 cell.selectionStyle = .none
-                cell.configData(obj: element)
+                cell.configData(obj: element, isGroup: isGroup)
                 return cell
             }else{
                 let identifier = "LeftDocTableViewCell"
@@ -1334,7 +1334,7 @@ extension ChatViewController: UITableViewDelegate, UITableViewDataSource {
                 
                 let message_content = element.message_content as! MediaModel
                 verifyDownloadProgress(message_content: message_content, indexPath: indexPath, element: element)
-                cell.configData(obj: element)
+                cell.configData(obj: element, isGroup: isGroup)
                 
                 return cell
             }

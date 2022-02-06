@@ -1,11 +1,13 @@
 package `in`.newdevpoint.ssnodejschat.adapter
 
+import `in`.newdevpoint.ssnodejschat.AppApplication
 import `in`.newdevpoint.ssnodejschat.R
 import `in`.newdevpoint.ssnodejschat.databinding.RowRoomListBinding
 import `in`.newdevpoint.ssnodejschat.model.FSRoomModel
 import `in`.newdevpoint.ssnodejschat.model.FSUsersModel
-import `in`.newdevpoint.ssnodejschat.utility.*
 import `in`.newdevpoint.ssnodejschat.utility.TimeShow.timeFormatYesterdayToDay
+import `in`.newdevpoint.ssnodejschat.utility.UserDetails
+import `in`.newdevpoint.ssnodejschat.utility.getImageString
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
@@ -15,13 +17,17 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import java.util.*
 
-class RoomListAdapter(private val context: Context, private val callBack: CallBackForSinglePost) : RecyclerView.Adapter<RoomListAdapter.MyViewHolder>() {
+class RoomListAdapter(private val context: Context, private val callBack: CallBackForSinglePost) :
+    RecyclerView.Adapter<RoomListAdapter.MyViewHolder>() {
     private val list: ArrayList<FSRoomModel> = ArrayList<FSRoomModel>()
     private val TAG = RoomListAdapter::class.java.simpleName
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
         val binding: RowRoomListBinding = DataBindingUtil.inflate(
-                LayoutInflater.from(parent.context),
-                R.layout.row_room_list, parent, false)
+            LayoutInflater.from(parent.context),
+            R.layout.row_room_list,
+            parent,
+            false
+        )
         return MyViewHolder(binding)
     }
 
@@ -29,11 +35,29 @@ class RoomListAdapter(private val context: Context, private val callBack: CallBa
         val item: FSRoomModel = list[position]
         if (item.isGroup) {
             holder.binding.rowChatUserName.text = item.groupDetails!!.group_name
+            holder.binding.onlineStatusOffline.visibility = View.GONE
+            holder.binding.onlineStatusOnline.visibility = View.GONE
         } else {
             holder.binding.rowChatUserName.text = item.senderUserDetail!!.name
             if (item.senderUserDetail != null) {
 //            holder.binding.rowChatUserPic
-                Glide.with(context).load(Utils.getImageString(item.senderUserDetail!!.profile_image)).into(holder.binding.rowChatUserPic)
+
+                val userImage = item.senderUserDetail!!.profile_image.getImageString()
+                if (userImage != null) {
+                    Glide.with(context)
+                        .setDefaultRequestOptions(AppApplication.USER_PROFILE_DEFAULT_GLIDE_CONFIG)
+                        .load(userImage)
+                        .into(holder.binding.rowChatUserPic)
+                }
+
+
+                if (item.senderUserDetail!!.isOnline) {
+                    holder.binding.onlineStatusOffline.visibility = View.GONE
+                    holder.binding.onlineStatusOnline.visibility = View.VISIBLE
+                } else {
+                    holder.binding.onlineStatusOffline.visibility = View.VISIBLE
+                    holder.binding.onlineStatusOnline.visibility = View.GONE
+                }
             }
         }
         holder.binding.rowChatUserLastMessage.text = item.lastMessage
@@ -55,15 +79,9 @@ class RoomListAdapter(private val context: Context, private val callBack: CallBa
             holder.binding.rowChatUserPendingMessages.visibility = View.INVISIBLE
         }
 
-//        if(item.getSenderUserDetail().isOnline()){
-//            holder.binding.onlineStatusOffline.setVisibility(View.GONE);
-//            holder.binding.onlineStatusOnline.setVisibility(View.VISIBLE);
-//        }else{
-//            holder.binding.onlineStatusOffline.setVisibility(View.VISIBLE);
-//            holder.binding.onlineStatusOnline.setVisibility(View.GONE);
-//        }
-        holder.binding.onlineStatusOffline.visibility = View.GONE
-        holder.binding.onlineStatusOnline.visibility = View.GONE
+
+        //holder.binding.onlineStatusOffline.visibility = View.GONE
+        //  holder.binding.onlineStatusOnline.visibility = View.GONE
     }
 
     override fun getItemCount(): Int {
@@ -127,7 +145,8 @@ class RoomListAdapter(private val context: Context, private val callBack: CallBa
         fun onClick(item: FSRoomModel)
     }
 
-    inner class MyViewHolder(val binding: RowRoomListBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class MyViewHolder(val binding: RowRoomListBinding) :
+        RecyclerView.ViewHolder(binding.root) {
         init {
             binding.root.setOnClickListener { callBack.onClick(list[adapterPosition]) }
         }

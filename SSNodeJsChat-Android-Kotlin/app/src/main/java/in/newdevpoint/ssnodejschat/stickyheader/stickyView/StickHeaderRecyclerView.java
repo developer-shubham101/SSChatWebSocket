@@ -1,5 +1,7 @@
 package in.newdevpoint.ssnodejschat.stickyheader.stickyView;
 
+import android.content.Context;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
@@ -9,11 +11,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
+import in.newdevpoint.ssnodejschat.AppApplication;
 import in.newdevpoint.ssnodejschat.adapter.ChatAdapterBase;
 import in.newdevpoint.ssnodejschat.adapter.HeaderDataImpl;
 import in.newdevpoint.ssnodejschat.model.ChatModel;
 import in.newdevpoint.ssnodejschat.model.StickyMainData;
 import in.newdevpoint.ssnodejschat.stickyheader.stickyData.HeaderData;
+import in.newdevpoint.ssnodejschat.utility.PreferenceUtils;
 import in.newdevpoint.ssnodejschat.utility.UserDetails;
 
 public abstract class StickHeaderRecyclerView<D extends ChatModel, H extends HeaderDataImpl> extends ChatAdapterBase implements StickHeaderItemDecoration.StickyHeaderInterface {

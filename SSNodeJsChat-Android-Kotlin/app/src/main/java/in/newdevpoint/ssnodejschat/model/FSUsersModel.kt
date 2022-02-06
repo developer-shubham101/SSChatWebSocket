@@ -4,6 +4,7 @@ import com.google.gson.annotations.SerializedName
 import java.io.Serializable
 
 class FSUsersModel : Serializable {
+
     @SerializedName("userName")
     var userName = ""
 
@@ -16,6 +17,9 @@ class FSUsersModel : Serializable {
     @SerializedName("userId")
     var id: String = ""
 
+    @SerializedName("_id")
+    var chatId: String = ""
+
     @SerializedName("profile_pic")
     var profile_image = ""
 
@@ -25,4 +29,7 @@ class FSUsersModel : Serializable {
     @SerializedName("is_online")
     var isOnline = false
     var isChecked = false
+
+
+
 }

@@ -17,10 +17,12 @@ import `in`.newdevpoint.ssnodejschat.stickyheader.stickyView.StickHeaderItemDeco
 import `in`.newdevpoint.ssnodejschat.utility.*
 import `in`.newdevpoint.ssnodejschat.utility.FileUtils.saveVideoToInternalStorage
 import `in`.newdevpoint.ssnodejschat.utility.Utils.blurRenderScript
-import `in`.newdevpoint.ssnodejschat.utility.Utils.getImageString
 import `in`.newdevpoint.ssnodejschat.webService.APIClient
 import `in`.newdevpoint.ssnodejschat.webService.ResponseModel
 import android.Manifest
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Intent
 import android.graphics.Bitmap
@@ -35,11 +37,11 @@ import android.provider.MediaStore
 import android.util.DisplayMetrics
 import android.util.Log
 import android.util.Size
-import android.view.MenuItem
-import android.view.View
-import android.view.WindowManager
+import android.view.*
+import android.view.View.VISIBLE
 import android.widget.PopupMenu
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -59,9 +61,9 @@ import java.net.URL
 import java.util.*
 
 class ChatActivity : AppCompatActivity(), View.OnClickListener,
-        PermissionClass.PermissionRequire,
-        UploadFileProgressFragment.UploadFileProgressCallback,
-        PlayAudioFragment.PlayAudioCallback, WebSocketObserver {
+    PermissionClass.PermissionRequire,
+    UploadFileProgressFragment.UploadFileProgressCallback,
+    PlayAudioFragment.PlayAudioCallback, WebSocketObserver {
     private val chatListTmp = ArrayList<ChatModel>()
     private val chatList = HashMap<Date, ArrayList<ChatModel>>()
     private val uploadFragment: PlayAudioFragment = PlayAudioFragment()
@@ -79,12 +81,17 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener,
     private var minutes = 0
     private var hours = 0
     var runnable: Runnable = object : Runnable {
+        @SuppressLint("SetTextI18n")
         override fun run() {
             seconds = (timeBuff + System.currentTimeMillis() / 1000 - startTime).toInt()
             hours = seconds / 3600
             minutes = seconds / 60
-            seconds = seconds % 60
-            binding.chatRecordingTime.text = "" + hours + ":" + String.format("%02d", minutes) + ":" + String.format("%02d", seconds)
+            seconds %= 60
+            binding.chatRecordingTime.text =
+                "" + hours + ":" + String.format("%02d", minutes) + ":" + String.format(
+                    "%02d",
+                    seconds
+                )
             handler!!.postDelayed(this, 0)
         }
     }
@@ -93,11 +100,16 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener,
     private var _roomId: String? = null
     private var _isGroup = false
     private var _groupDetails: FSGroupModel? = null
-    private lateinit var _senderDetails: FSUsersModel
+    private var _senderDetails: FSUsersModel? = null
     private var noOfNewMessages = 0
+
+    //private lateinit var mRevealLayout: View
+
+
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_chat)
+        //setContentView(R.layout.activity_chat)
 
 
         // Record to the external cache directory for visibility
@@ -106,9 +118,10 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener,
         handler = Handler(Looper.getMainLooper())
         binding = DataBindingUtil.setContentView(this@ChatActivity, R.layout.activity_chat)
         permissionClass = PermissionClass(this, this)
-        binding.attachmentWrapper.visibility = View.GONE
+        binding.attachmentWrapper.visibility = View.INVISIBLE
         this.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
         binding.sendButton.setOnClickListener(this)
+        binding.backBtnImage.setOnClickListener(this)
         binding.chatAttachment.setOnClickListener(this)
         binding.attachmentDoc.setOnClickListener(this)
         binding.attachmentCamera.setOnClickListener(this)
@@ -121,12 +134,16 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener,
         binding.chatCloseRecording.setOnClickListener(this)
         binding.chatGoToBottom.setOnClickListener(this)
         binding.chatUnblockBtn.setOnClickListener(this)
+        binding.chatUserNameConstrant.setOnClickListener(this)
         adapter = setUpRecyclerView()
         binding.audioPlayerFragment.visibility = View.GONE
         binding.chatGoToBottom.visibility = View.GONE
         setAudioPlayer()
         addChatMenu()
-        val wallpaperFilePath: String = DownloadUtility.createPath(applicationContext, DownloadUtility.FILE_PATH_WALLPAPER) + "/wallpaper.jpg"
+        val wallpaperFilePath: String = DownloadUtility.createPath(
+            applicationContext,
+            DownloadUtility.FILE_PATH_WALLPAPER
+        ) + "/wallpaper.jpg"
         val wallpaperFile = File(wallpaperFilePath)
         if (wallpaperFile.exists()) {
             val myBitmap = BitmapFactory.decodeFile(wallpaperFilePath)
@@ -134,16 +151,28 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener,
         }
         parseExtras()
         WebSocketSingleton.getInstant()?.register(this)
+
+
     }
+
 
     private fun parseExtras() {
         _roomId = intent.getStringExtra(INTENT_EXTRAS_KEY_ROOM_ID)
         _isGroup = intent.getBooleanExtra(INTENT_EXTRAS_KEY_IS_GROUP, false)
         _groupDetails = intent.getSerializableExtra(INTENT_EXTRAS_KEY_GROUP_DETAILS) as FSGroupModel?
-        //        _senderDetails = (FSUsersModel) getIntent().getSerializableExtra(ChatActivity.INTENT_EXTRAS_KEY_SENDER_DETAILS);
-        val tmpSenderDetails = intent.getSerializableExtra(INTENT_EXTRAS_KEY_SENDER_DETAILS)
-        if (tmpSenderDetails != null) {
-            _senderDetails = tmpSenderDetails as FSUsersModel
+        _senderDetails = intent.getSerializableExtra(INTENT_EXTRAS_KEY_SENDER_DETAILS) as FSUsersModel?
+
+        if (_isGroup) {
+            setGroupDetails()
+        } else {
+            setIndividualDetails()
+        }
+
+        joinCommand()
+        blockList
+        roomInfo
+
+       /* if (_senderDetails != null) {
             addChatMenu()
             if (_isGroup) {
                 setGroupDetails()
@@ -154,16 +183,23 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener,
             blockList
         } else {
             roomInfo
-        }
+        }*/
     }
 
     private fun setIndividualDetails() {
-        binding.chatChatWithUserName.text = _senderDetails.name
-        binding.chatChatWithUserStatus.text = if (_senderDetails.isOnline) "Online" else _senderDetails.lastSeen
-        Glide.with(this)
-                .setDefaultRequestOptions(AppApplication.USER_PROFILE_DEFAULT_GLIDE_CONFIG)
-                .load(getImageString(_senderDetails.profile_image))
-                .into(binding.chatUserProfile)
+       if(_senderDetails!=null){
+           binding.chatChatWithUserName.text = _senderDetails!!.name
+           binding.chatChatWithUserStatus.text =
+               if (_senderDetails!!.isOnline) "Online" else _senderDetails!!.lastSeen
+
+           val userImage = _senderDetails!!.profile_image.getImageString()
+           if (userImage != null) {
+               Glide.with(this)
+                   .setDefaultRequestOptions(AppApplication.USER_PROFILE_DEFAULT_GLIDE_CONFIG)
+                   .load(userImage)
+                   .into(binding.chatUserProfile)
+           }
+       }
     }
 
     private fun setGroupDetails() {
@@ -177,7 +213,8 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener,
             val messageMap = HashMap<String?, Any?>()
             messageMap["type"] = "roomsDetails"
             messageMap["roomId"] = _roomId
-            messageMap[APIClient.KeyConstant.REQUEST_TYPE_KEY] = APIClient.KeyConstant.REQUEST_TYPE_ROOM
+            messageMap[APIClient.KeyConstant.REQUEST_TYPE_KEY] =
+                APIClient.KeyConstant.REQUEST_TYPE_ROOM
             WebSocketSingleton.getInstant()?.sendMessage(JSONObject(messageMap))
         }
 
@@ -213,7 +250,10 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener,
                             val width = displayMetrics.widthPixels
                             when (item1.itemId) {
                                 R.id.changeWallpaperDefault -> {
-                                    val wallpaperFilePath: String = DownloadUtility.createPath(applicationContext, DownloadUtility.FILE_PATH_WALLPAPER) + "/wallpaper.jpg"
+                                    val wallpaperFilePath: String = DownloadUtility.createPath(
+                                        applicationContext,
+                                        DownloadUtility.FILE_PATH_WALLPAPER
+                                    ) + "/wallpaper.jpg"
                                     val wallpaperFile = File(wallpaperFilePath)
                                     if (wallpaperFile.exists()) {
                                         wallpaperFile.delete()
@@ -223,12 +263,14 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener,
                                 R.id.changeWallpaperWithOutBlur -> {
                                     applyBlur = false
                                     isSetWallpaper = true
-                                    CropImage.activity().setFixAspectRatio(true).setAspectRatio(width, height).start(this@ChatActivity)
+                                    CropImage.activity().setFixAspectRatio(true)
+                                        .setAspectRatio(width, height).start(this@ChatActivity)
                                 }
                                 R.id.changeWallpaperWithBlur -> {
                                     applyBlur = true
                                     isSetWallpaper = true
-                                    CropImage.activity().setFixAspectRatio(true).setAspectRatio(width, height).start(this@ChatActivity)
+                                    CropImage.activity().setFixAspectRatio(true)
+                                        .setAspectRatio(width, height).start(this@ChatActivity)
                                 }
                             }
                             false
@@ -249,9 +291,12 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener,
             val jsonObject = JSONObject()
             jsonObject.put("type", "blockUser")
             jsonObject.put("blockedBy", UserDetails.myDetail.id)
-            jsonObject.put("blockedTo", _senderDetails.id)
+            jsonObject.put("blockedTo", _senderDetails!!.id)
             jsonObject.put("isBlock", isBlocked)
-            jsonObject.put(APIClient.KeyConstant.REQUEST_TYPE_KEY, APIClient.KeyConstant.REQUEST_TYPE_BLOCK_USER)
+            jsonObject.put(
+                APIClient.KeyConstant.REQUEST_TYPE_KEY,
+                APIClient.KeyConstant.REQUEST_TYPE_BLOCK_USER
+            )
             WebSocketSingleton.getInstant()?.sendMessage(jsonObject)
         } catch (e: JSONException) {
             e.printStackTrace()
@@ -267,7 +312,8 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener,
 
     @Throws(JSONException::class)
     private fun appendMessage(chatData: JSONObject, showMessageCount: Boolean) {
-        val senderDetails: FSUsersModel = UserDetails.chatUsers.get(chatData.getString("sender_id"))!!
+        val senderDetails: FSUsersModel =
+            UserDetails.chatUsers.get(chatData.getString("sender_id"))!!
         val chatModel = ChatModel(chatData, senderDetails)
         if (chatModel.roomId == _roomId) {
             chatListTmp.add(chatModel)
@@ -278,7 +324,11 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener,
                 chatList[tempDate] = correspondingChatList
             }
             correspondingChatList.add(chatModel)
-            correspondingChatList.sortWith(Comparator { o1: ChatModel, o2: ChatModel -> o1.messageDate.compareTo(o2.messageDate) })
+            correspondingChatList.sortWith(Comparator { o1: ChatModel, o2: ChatModel ->
+                o1.messageDate.compareTo(
+                    o2.messageDate
+                )
+            })
             val keys = ArrayList(chatList.keys)
             keys.sort()
             adapter.clearAll()
@@ -320,7 +370,12 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener,
 
     private fun setUpRecyclerView(): ChatAdapter {
         val adapter = ChatAdapter(this, object : ChatAdapter.ChatCallbacks {
-            override fun onClickDownload(chatModel: ChatModel?, messageContent: MediaModel?, stopDownloading: Boolean, onDownloadListener: OnDownloadListener?) {
+            override fun onClickDownload(
+                chatModel: ChatModel?,
+                messageContent: MediaModel?,
+                stopDownloading: Boolean,
+                onDownloadListener: OnDownloadListener?
+            ) {
                 if (chatModel!!.message_type == ChatModel.MessageType.image) {
                     val intent = Intent(this@ChatActivity, ZoomImageActivity::class.java)
                     intent.putExtra(ZoomImageActivity.INTENT_EXTRA_URL, messageContent?.file_url)
@@ -331,34 +386,44 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener,
             }
 
             override fun onClickLocation(chatModel: ChatModel?, locationModel: LocationModel?) {
-                val geoUri = "http://maps.google.com/maps?q=loc:" + locationModel!!.latitude + "," + locationModel.longitude + " (" + locationModel.name + ")"
+                val geoUri =
+                    "http://maps.google.com/maps?q=loc:" + locationModel!!.latitude + "," + locationModel.longitude + " (" + locationModel.name + ")"
                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(geoUri))
                 startActivity(intent)
             }
 
             override fun onClickContact(chatModel: ChatModel?, contactModel: ContactModel?) {
-                val dialogBuilder: ContactDialog.DialogBuilder = ContactDialog.DialogBuilder(this@ChatActivity).setOnItemClick(object : ContactDialog.OnItemClick {
-                    override fun addContactNew(dialog: ContactDialog?) {
-                        /*	Intent contactIntent = new Intent(ContactsContract.Intents.Insert.ACTION);
-						contactIntent.setType(ContactsContract.RawContacts.CONTENT_TYPE);
+                val dialogBuilder: ContactDialog.DialogBuilder =
+                    ContactDialog.DialogBuilder(this@ChatActivity)
+                        .setOnItemClick(object : ContactDialog.OnItemClick {
+                            override fun addContactNew(dialog: ContactDialog?) {
+                                /*	Intent contactIntent = new Intent(ContactsContract.Intents.Insert.ACTION);
+                                contactIntent.setType(ContactsContract.RawContacts.CONTENT_TYPE);
 
-						contactIntent
-								.putExtra(ContactsContract.Intents.Insert.NAME, contactModel.getFirst_name() + " " + contactModel.getLast_name())
-								.putExtra(ContactsContract.Intents.Insert.PHONE, contactModel.getMobile());
+                                contactIntent
+                                        .putExtra(ContactsContract.Intents.Insert.NAME, contactModel.getFirst_name() + " " + contactModel.getLast_name())
+                                        .putExtra(ContactsContract.Intents.Insert.PHONE, contactModel.getMobile());
 
-						startActivityForResult(contactIntent, REQUEST_ADD_CONTACT);*/
-                        val contactIntent = Intent(Intent.ACTION_INSERT_OR_EDIT)
-                        contactIntent.type = ContactsContract.Contacts.CONTENT_ITEM_TYPE
-                        contactIntent
-                                .putExtra(ContactsContract.Intents.Insert.NAME, contactModel?.first_name + " " + contactModel?.last_name)
-                                .putExtra(ContactsContract.Intents.Insert.PHONE, contactModel?.mobile)
-                        startActivityForResult(contactIntent, REQUEST_ADD_CONTACT)
-                    }
+                                startActivityForResult(contactIntent, REQUEST_ADD_CONTACT);*/
+                                val contactIntent = Intent(Intent.ACTION_INSERT_OR_EDIT)
+                                contactIntent.type = ContactsContract.Contacts.CONTENT_ITEM_TYPE
+                                contactIntent
+                                    .putExtra(
+                                        ContactsContract.Intents.Insert.NAME,
+                                        contactModel?.first_name + " " + contactModel?.last_name
+                                    )
+                                    .putExtra(
+                                        ContactsContract.Intents.Insert.PHONE,
+                                        contactModel?.mobile
+                                    )
+                                startActivityForResult(contactIntent, REQUEST_ADD_CONTACT)
+                            }
 
-                    override fun close(dialog: ContactDialog) {
-                        dialog.cancel()
-                    }
-                }).setContactNumber(contactModel?.mobile!!).setTitle(contactModel.first_name + " " + contactModel.last_name)
+                            override fun close(dialog: ContactDialog) {
+                                dialog.cancel()
+                            }
+                        }).setContactNumber(contactModel?.mobile!!)
+                        .setTitle(contactModel.first_name + " " + contactModel.last_name)
                 val dialog: ContactDialog = dialogBuilder.build()
                 val display = windowManager.defaultDisplay
                 val size = Point()
@@ -399,12 +464,22 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener,
         return adapter
     }
 
-    private fun downloadFile(chatModel: ChatModel?, appListModel: MediaModel?, stopDownloading: Boolean, onDownloadListener: OnDownloadListener?) {
+    private fun downloadFile(
+        chatModel: ChatModel?,
+        appListModel: MediaModel?,
+        stopDownloading: Boolean,
+        onDownloadListener: OnDownloadListener?
+    ) {
         val downloadUrl: String = appListModel!!.file_url
         try {
             val url = URL(downloadUrl)
             val downloadFileName = FilenameUtils.getName(url.path)
-            val downloadFile: File = File(DownloadUtility.getPath(applicationContext, DownloadUtility.FILE_PATH_CHAT_FILES) + "/" + downloadFileName)
+            val downloadFile: File = File(
+                DownloadUtility.getPath(
+                    applicationContext,
+                    DownloadUtility.FILE_PATH_CHAT_FILES
+                ) + "/" + downloadFileName
+            )
             val isAppDownloaded = downloadFile.exists()
             if (isAppDownloaded) {
                 chatModel!!.downloadStatus = ChatModel.DownloadStatus.DOWNLOADED
@@ -424,15 +499,19 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener,
                     }
                 }
             } else {
-                val task: DownloadRequest? = DownloadUtility.downloadList.get(MD5.stringToMD5(downloadUrl))
+                val task: DownloadRequest? =
+                    DownloadUtility.downloadList.get(MD5.stringToMD5(downloadUrl))
                 if (task == null) {
-                    DownloadUtility.downloadFile(applicationContext,
-                            DownloadUtility.getPath(
-                                    applicationContext,
-                                    DownloadUtility.FILE_PATH_CHAT_FILES),
-                            downloadUrl, downloadFileName,
-                            MD5.stringToMD5(downloadUrl),
-                            onDownloadListener)
+                    DownloadUtility.downloadFile(
+                        applicationContext,
+                        DownloadUtility.getPath(
+                            applicationContext,
+                            DownloadUtility.FILE_PATH_CHAT_FILES
+                        ),
+                        downloadUrl, downloadFileName,
+                        MD5.stringToMD5(downloadUrl),
+                        onDownloadListener
+                    )
                     chatModel!!.downloadStatus = ChatModel.DownloadStatus.DOWNLOADING
                 } else {
                     if (stopDownloading) {
@@ -472,9 +551,11 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener,
         val pictureDialog = AlertDialog.Builder(this)
         pictureDialog.setTitle("Select Action")
         val pictureDialogItems = arrayOf(
-                "Select video from gallery",
-                "Record video from camera")
-        pictureDialog.setItems(pictureDialogItems
+            "Select video from gallery",
+            "Record video from camera"
+        )
+        pictureDialog.setItems(
+            pictureDialogItems
         ) { dialog, which ->
             when (which) {
                 0 -> chooseVideoFromGallery()
@@ -484,8 +565,12 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener,
         pictureDialog.show()
     }
 
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onClick(v: View) {
         when (v.id) {
+            R.id.back_btnImage -> {
+                finish()
+            }
             R.id.chatUnblockBtn -> {
                 blockOrUnblock(false)
             }
@@ -496,8 +581,10 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener,
             R.id.sendButton -> {
                 if (!binding.messageArea.text.toString().isEmpty()) {
                     val message = binding.messageArea.text.toString()
-                    val emailFilteredString: String = StringUtilities.replaceEmailAddressWithStarsInString(message)
-                    val mobileFilteredString: String = StringUtilities.replaceMobileWithStarsInString(emailFilteredString)!!
+                    val emailFilteredString: String =
+                        StringUtilities.replaceEmailAddressWithStarsInString(message)
+                    val mobileFilteredString: String =
+                        StringUtilities.replaceMobileWithStarsInString(emailFilteredString)!!
                     sendMessage(mobileFilteredString, ChatModel.MessageType.text, HashMap())
                     binding.messageArea.setText("")
                 }
@@ -535,11 +622,18 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener,
                 toggleAttachmentWrapper()
                 contacts
             }
+            R.id.chatUserNameConstrant -> {
+                if (_isGroup) {
+                    startActivity(Intent(this@ChatActivity, GroupDetailActivity::class.java))
+                }
+            }
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun toggleAttachmentWrapper() {
-        binding.attachmentWrapper.visibility = if (binding.attachmentWrapper.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+        revealLayoutFun()
+        //  binding.attachmentWrapper.visibility = if (binding.attachmentWrapper.visibility == View.VISIBLE) View.GONE else View.VISIBLE
     }
 
     private val contacts: Unit
@@ -558,7 +652,11 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener,
         }
     }
 
-    private fun sendMessage(message: String, messageType: ChatModel.MessageType?, messageContent: HashMap<String, Any?>) {
+    private fun sendMessage(
+        message: String,
+        messageType: ChatModel.MessageType?,
+        messageContent: HashMap<String, Any?>
+    ) {
         val messageMap = HashMap<String?, Any?>()
         messageMap["type"] = "addMessage"
         messageMap["roomId"] = _roomId
@@ -569,21 +667,22 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener,
         messageMap["sender_id"] = UserDetails.myDetail.id
         messageMap["receiver_id"] = "12312faa"
         messageMap["message_content"] = messageContent
-        messageMap[APIClient.KeyConstant.REQUEST_TYPE_KEY] = APIClient.KeyConstant.REQUEST_TYPE_MESSAGE
+        messageMap[APIClient.KeyConstant.REQUEST_TYPE_KEY] =
+            APIClient.KeyConstant.REQUEST_TYPE_MESSAGE
         //        messageMap.put("time", time);
 
         // TODO: 27/01/21 SendMessage
 //        chatReference.add(messageMap);
         WebSocketSingleton.getInstant()?.sendMessage(JSONObject(messageMap))
-        Timer().schedule(
-                object : TimerTask() {
-                    override fun run() {
-                        binding.chatRecyclerView.smoothScrollToPosition(adapter.itemCount - 1)
-                        // your code here
-                    }
-                },
-                500
-        )
+        /*Timer().schedule(
+            object : TimerTask() {
+                override fun run() {
+                    binding.chatRecyclerView.smoothScrollToPosition(adapter.itemCount - 1)
+                    // your code here
+                }
+            },
+            500
+        )*/
 
 
 //        binding.chatRecyclerView.getLayoutManager().scrollToPosition(adapter.getItemCount() - 1);
@@ -591,8 +690,10 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener,
     }
 
     private fun chooseVideoFromGallery() {
-        val galleryIntent = Intent(Intent.ACTION_PICK,
-                MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
+        val galleryIntent = Intent(
+            Intent.ACTION_PICK,
+            MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+        )
         startActivityForResult(galleryIntent, GALLERY)
     }
 
@@ -652,6 +753,7 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener,
         }
     }
 
+    @SuppressLint("NewApi")
     private fun uploadImageFormUri(resultUri: Uri) {
         val imagePath = resultUri.path
         try {
@@ -660,14 +762,19 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener,
             thumbnailFile.exists()
             val bitmap: Bitmap?
             bitmap = if (Build.VERSION.SDK_INT <= 29) {
-                ThumbnailUtils.createImageThumbnail(imagePath!!, MediaStore.Images.Thumbnails.MINI_KIND)
+                ThumbnailUtils.createImageThumbnail(
+                    imagePath!!,
+                    MediaStore.Images.Thumbnails.MINI_KIND
+                )
             } else {
                 // TODO: 4/17/2020 here we will do code for crete thumnail for latest api version 29 bcoz createVideoThumbnail is depricate for this version
                 val signal = CancellationSignal()
                 val size = Size(100, 100)
                 val file = File(imagePath)
-                ThumbnailUtils.createImageThumbnail(file,
-                        size, signal)
+                ThumbnailUtils.createImageThumbnail(
+                    file,
+                    size, signal
+                )
             }
             val bos = ByteArrayOutputStream()
             bitmap!!.compress(Bitmap.CompressFormat.PNG, 100 /*ignored for PNG*/, bos)
@@ -680,7 +787,8 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener,
                 val file = File(imagePath)
                 if (file.exists()) {
                     val fileMeta = HashMap<String, Any>()
-                    fileMeta[MediaMetaModel.KEY_FILE_TYPE] = MediaMetaModel.MediaType.imageJPG.toString()
+                    fileMeta[MediaMetaModel.KEY_FILE_TYPE] =
+                        MediaMetaModel.MediaType.imageJPG.toString()
                     addFragment(file, thumbnailFile, ChatModel.MessageType.image, fileMeta)
                     Log.d(TAG, "onActivityResult: $file")
                 }
@@ -702,7 +810,10 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener,
         try {
             val file = File(imagePath)
             if (file.exists()) {
-                val wallpaperFilePath: String = DownloadUtility.createPath(applicationContext, DownloadUtility.FILE_PATH_WALLPAPER) + "/wallpaper.jpg"
+                val wallpaperFilePath: String = DownloadUtility.createPath(
+                    applicationContext,
+                    DownloadUtility.FILE_PATH_WALLPAPER
+                ) + "/wallpaper.jpg"
                 val wallpaperFile = File(wallpaperFilePath)
                 if (wallpaperFile.exists()) {
                     wallpaperFile.delete()
@@ -713,7 +824,11 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener,
                         val blurred = blurRenderScript(this@ChatActivity, srcBitmap, 25)
                         try {
                             FileOutputStream(wallpaperFilePath).use { out ->
-                                blurred.compress(Bitmap.CompressFormat.PNG, 100, out) // bmp is your Bitmap instance
+                                blurred.compress(
+                                    Bitmap.CompressFormat.PNG,
+                                    100,
+                                    out
+                                ) // bmp is your Bitmap instance
                             }
                         } catch (e: IOException) {
                             e.printStackTrace()
@@ -751,8 +866,10 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener,
             try {
                 var bitmap: Bitmap? = null
                 bitmap = if (Build.VERSION.SDK_INT <= 29) {
-                    ThumbnailUtils.createVideoThumbnail(selectedVideoPath,
-                            MediaStore.Images.Thumbnails.MINI_KIND)
+                    ThumbnailUtils.createVideoThumbnail(
+                        selectedVideoPath,
+                        MediaStore.Images.Thumbnails.MINI_KIND
+                    )
                 } else {
                     // TODO: 4/17/2020 here we will do code for crete thumbnail for latest api version 29 because createVideoThumbnail is deprecated for this version
                     val signal = CancellationSignal()
@@ -771,7 +888,8 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener,
                     val file = File(selectedVideoPath)
                     if (file.exists()) {
                         val fileMeta = HashMap<String, Any>()
-                        fileMeta[MediaMetaModel.KEY_FILE_TYPE] = MediaMetaModel.MediaType.videoMP4.toString()
+                        fileMeta[MediaMetaModel.KEY_FILE_TYPE] =
+                            MediaMetaModel.MediaType.videoMP4.toString()
                         addFragment(file, thumbnailFile, ChatModel.MessageType.video, fileMeta)
                         Log.d(TAG, "onActivityResult: $file")
                     }
@@ -795,7 +913,12 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener,
         }
     }
 
-    private fun addFragment(file: File, thumb: File?, messageType: ChatModel.MessageType, messageMeta: HashMap<String, Any>) {
+    private fun addFragment(
+        file: File,
+        thumb: File?,
+        messageType: ChatModel.MessageType,
+        messageMeta: HashMap<String, Any>
+    ) {
         val ft = supportFragmentManager.beginTransaction()
         val uploadFragment = UploadFileProgressFragment()
         ft.add(R.id.uploadFileWrapper, uploadFragment, uploadFragment.fragmentTag)
@@ -810,7 +933,7 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener,
             // HERE YOU WILL GET A NULLPOINTER IF CURSOR IS NULL
             // THIS CAN BE, IF YOU USED OI FILE MANAGER FOR PICKING THE MEDIA
             val column_index = cursor
-                    .getColumnIndexOrThrow(MediaStore.Video.Media.DATA)
+                .getColumnIndexOrThrow(MediaStore.Video.Media.DATA)
             cursor.moveToFirst()
             cursor.getString(column_index)
         } else null
@@ -829,7 +952,11 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener,
 //		startActivityForResult(galleryIntent, GALLERY);
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         permissionClass.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
@@ -900,28 +1027,40 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener,
 
     override fun listOfPermission(flag: Int): Array<String> {
         if (flag == REQUEST_RECORD_AUDIO_PERMISSION) {
-            return arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                    Manifest.permission.RECORD_AUDIO)
+            return arrayOf(
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.RECORD_AUDIO
+            )
         } else if (flag == REQUEST_READ_STORAGE_FOR_UPLOAD_IMAGE || flag == REQUEST_READ_STORAGE_FOR_UPLOAD_VIDEO) {
-            return arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                    Manifest.permission.CAMERA
+            return arrayOf(
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.CAMERA
             )
         }
-        return arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.CAMERA,
-                Manifest.permission.RECORD_AUDIO)
+        return arrayOf(
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.CAMERA,
+            Manifest.permission.RECORD_AUDIO
+        )
     }
 
-    override fun uploadFinished(fragmentTag: String?, data: UploadFileMode?, messageType: ChatModel.MessageType?, date: Date?, messageData: HashMap<String, Any>?) {
+    override fun uploadFinished(
+        fragmentTag: String?,
+        data: UploadFileMode?,
+        messageType: ChatModel.MessageType?,
+        date: Date?,
+        messageData: HashMap<String, Any>?
+    ) {
         val fragment = supportFragmentManager.findFragmentByTag(fragmentTag)
         if (fragment != null) {
             supportFragmentManager.beginTransaction().remove(fragment).commit()
             if (data != null) {
                 if (data.thumbnail != null && data.thumbnail.isNotEmpty()) {
-                    messageData!![MediaMetaModel.KEY_FILE_THUMB] = APIClient.IMAGE_URL + data.thumbnail
+                    messageData!![MediaMetaModel.KEY_FILE_THUMB] =
+                        APIClient.IMAGE_URL + data.thumbnail
                 }
                 val messageContent = HashMap<String, Any?>()
                 val fileUrl: String =  /*APIClient.IMAGE_URL + */data.file!!
@@ -941,7 +1080,10 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener,
         try {
             jsonObject.put("type", "allMessage")
             jsonObject.put("room", _roomId)
-            jsonObject.put(APIClient.KeyConstant.REQUEST_TYPE_KEY, APIClient.KeyConstant.REQUEST_TYPE_MESSAGE)
+            jsonObject.put(
+                APIClient.KeyConstant.REQUEST_TYPE_KEY,
+                APIClient.KeyConstant.REQUEST_TYPE_MESSAGE
+            )
         } catch (e: JSONException) {
             e.printStackTrace()
         }
@@ -954,7 +1096,10 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener,
             try {
                 jsonObject.put("type", "allBlockUser")
                 jsonObject.put("user", UserDetails.myDetail.id)
-                jsonObject.put(APIClient.KeyConstant.REQUEST_TYPE_KEY, APIClient.KeyConstant.REQUEST_TYPE_BLOCK_USER)
+                jsonObject.put(
+                    APIClient.KeyConstant.REQUEST_TYPE_KEY,
+                    APIClient.KeyConstant.REQUEST_TYPE_BLOCK_USER
+                )
             } catch (e: JSONException) {
                 e.printStackTrace()
             }
@@ -970,7 +1115,12 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener,
         WebSocketSingleton.getInstant()?.sendMessage(JSONObject(messageMap))
     }
 
-    override fun onWebSocketResponse(response: String, type: String, statusCode: Int, message: String?) {
+    override fun onWebSocketResponse(
+        response: String,
+        type: String,
+        statusCode: Int,
+        message: String?
+    ) {
         Log.d(TAG, "received message: $response")
         runOnUiThread {
             try {
@@ -992,7 +1142,11 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener,
                         //                        binding.chatNewMessageCount
                         setRead()
                     } else {
-                        Toast.makeText(this@ChatActivity, responseData.getString("message"), Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            this@ChatActivity,
+                            responseData.getString("message"),
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
 
 
@@ -1005,7 +1159,8 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener,
                 } else if (ResponseType.RESPONSE_TYPE_ROOM_DETAILS.equalsTo(type)) {
                     if (statusCode == 200) {
                         val type1 = object : TypeToken<ResponseModel<RoomResponseModel?>?>() {}.type
-                        val roomResponseModelResponseModel: ResponseModel<RoomResponseModel> = Gson().fromJson<ResponseModel<RoomResponseModel>>(response, type1)
+                        val roomResponseModelResponseModel: ResponseModel<RoomResponseModel> =
+                            Gson().fromJson<ResponseModel<RoomResponseModel>>(response, type1)
                         for (element in roomResponseModelResponseModel.getData().userList) {
                             UserDetails.chatUsers.put(element.id, element)
                         }
@@ -1026,13 +1181,14 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener,
                 } else if (ResponseType.RESPONSE_TYPE_USER_MODIFIED.equalsTo(type)) {
                     Log.d(TAG, "received message: $response")
                     val type1 = object : TypeToken<ResponseModel<FSUsersModel?>?>() {}.type
-                    val fsUsersModelResponseModel: ResponseModel<FSUsersModel> = Gson().fromJson<ResponseModel<FSUsersModel>>(response, type1)
+                    val fsUsersModelResponseModel: ResponseModel<FSUsersModel> =
+                        Gson().fromJson<ResponseModel<FSUsersModel>>(response, type1)
                     _senderDetails = fsUsersModelResponseModel.getData()
-                    if (_isGroup) {
+                   /* if (_isGroup) {
 //                    setGroupDetails();
                     } else {
-                        setIndividualDetails()
-                    }
+                      //  setIndividualDetails()
+                    }*/
 
 //                otherUser = UserDetails.chatUsers.get(id);
 //
@@ -1040,32 +1196,38 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener,
                 } else if (ResponseType.RESPONSE_TYPE_USER_BLOCK_MODIFIED.equalsTo(type)) {
                     Log.d(TAG, "received message: $response")
                     val type1 = object : TypeToken<ResponseModel<UserBlockModel?>?>() {}.type
-                    val userBlockModelResponseModel: ResponseModel<UserBlockModel> = Gson().fromJson<ResponseModel<UserBlockModel>>(response, type1)
+                    val userBlockModelResponseModel: ResponseModel<UserBlockModel> =
+                        Gson().fromJson<ResponseModel<UserBlockModel>>(response, type1)
                     val element: UserBlockModel = userBlockModelResponseModel.getData()
-                    if (element.blockedTo == UserDetails.myDetail.id && element.blockedBy == _senderDetails.id && element.isBlock) {
+                    if (element.blockedTo == UserDetails.myDetail.id && element.blockedBy == _senderDetails!!.id && element.isBlock) {
                         blockedByOtherUser()
                     }
-                    if (element.blockedTo == UserDetails.myDetail.id && element.blockedBy == _senderDetails.id && !element.isBlock) {
+                    if (element.blockedTo == UserDetails.myDetail.id && element.blockedBy == _senderDetails!!.id && !element.isBlock) {
                         unBlockedByOtherUser()
                     }
-                    if (element.blockedTo == _senderDetails.id && element.blockedBy == UserDetails.myDetail.id && element.isBlock) {
+                    if (element.blockedTo == _senderDetails!!.id && element.blockedBy == UserDetails.myDetail.id && element.isBlock) {
                         isBlocked = true
                     }
                 } else if (ResponseType.RESPONSE_TYPE_USER_ALL_BLOCK.equalsTo(type)) {
                     Log.d(TAG, "received message: $response")
                     if (!_isGroup) {
-                        val type1 = object : TypeToken<ResponseModel<ArrayList<UserBlockModel?>?>?>() {}.type
-                        val userBlockModelResponseModel: ResponseModel<ArrayList<UserBlockModel>> = Gson().fromJson<ResponseModel<ArrayList<UserBlockModel>>>(response, type1)
+                        val type1 = object :
+                            TypeToken<ResponseModel<ArrayList<UserBlockModel?>?>?>() {}.type
+                        val userBlockModelResponseModel: ResponseModel<ArrayList<UserBlockModel>> =
+                            Gson().fromJson<ResponseModel<ArrayList<UserBlockModel>>>(
+                                response,
+                                type1
+                            )
                         for (element in userBlockModelResponseModel.getData()) {
-                            if (element.blockedTo == UserDetails.myDetail.id && element.blockedBy == _senderDetails.id && element.isBlock) {
+                            if (element.blockedTo == UserDetails.myDetail.id && element.blockedBy == _senderDetails!!.id && element.isBlock) {
                                 blockedByOtherUser()
                                 break
                             }
-                            if (element.blockedTo == UserDetails.myDetail.id && element.blockedBy == _senderDetails.id && !element.isBlock) {
+                            if (element.blockedTo == UserDetails.myDetail.id && element.blockedBy == _senderDetails!!.id && !element.isBlock) {
                                 unBlockedByOtherUser()
                                 break
                             }
-                            if (element.blockedTo == _senderDetails.id && element.blockedBy == UserDetails.myDetail.id && element.isBlock) {
+                            if (element.blockedTo == _senderDetails!!.id && element.blockedBy == UserDetails.myDetail.id && element.isBlock) {
                                 isBlocked = true
                             }
                         }
@@ -1082,7 +1244,6 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener,
     }
 
 
-
     private fun blockedByOtherUser() {
         binding.blockedWrapper.visibility = View.VISIBLE
         binding.chatMessageWrapper.visibility = View.GONE
@@ -1097,11 +1258,11 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener,
 
     override fun registerFor(): Array<ResponseType> {
         return arrayOf(
-                ResponseType.RESPONSE_TYPE_MESSAGES,
-                ResponseType.RESPONSE_TYPE_USER_MODIFIED,
-                ResponseType.RESPONSE_TYPE_USER_BLOCK_MODIFIED,
-                ResponseType.RESPONSE_TYPE_USER_ALL_BLOCK,
-                ResponseType.RESPONSE_TYPE_ROOM_DETAILS
+            ResponseType.RESPONSE_TYPE_MESSAGES,
+            ResponseType.RESPONSE_TYPE_USER_MODIFIED,
+            ResponseType.RESPONSE_TYPE_USER_BLOCK_MODIFIED,
+            ResponseType.RESPONSE_TYPE_USER_ALL_BLOCK,
+            ResponseType.RESPONSE_TYPE_ROOM_DETAILS
         )
     }
 
@@ -1119,5 +1280,60 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener,
         private const val GALLERY = 1
         private const val CAMERA = 2
         private var fileName: String? = null
+    }
+
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    private fun revealLayoutFun() {
+        if (binding.attachmentWrapper.visibility == VISIBLE) {
+            // get the center for the clipping circle
+            val cx = binding.attachmentWrapper.width / 2
+            val cy = binding.attachmentWrapper.height / 2
+
+            // get the initial radius for the clipping circle
+            val initialRadius = Math.hypot(cx.toDouble(), cy.toDouble()).toFloat()
+
+            // create the animation (the final radius is zero)
+            val anim = ViewAnimationUtils.createCircularReveal(
+                binding.attachmentWrapper,
+                cx,
+                cy,
+                initialRadius,
+                0f
+            )
+
+            // make the view invisible when the animation is done
+            anim.addListener(object : AnimatorListenerAdapter() {
+
+                override fun onAnimationEnd(animation: Animator) {
+                    super.onAnimationEnd(animation)
+                    binding.attachmentWrapper.visibility = View.INVISIBLE
+                }
+            })
+
+            // start the animation
+            anim.start()
+        } else {
+
+            val cx = binding.attachmentWrapper.width / 2
+            val cy = binding.attachmentWrapper.height / 2
+
+            // get the final radius for the clipping circle
+            val finalRadius = Math.hypot(cx.toDouble(), cy.toDouble()).toFloat()
+
+            // create the animator for this view (the start radius is zero)
+            val anim =
+                ViewAnimationUtils.createCircularReveal(
+                    binding.attachmentWrapper,
+                    cx,
+                    cy,
+                    0f,
+                    finalRadius
+                )
+            // make the view visible and start the animation
+            binding.attachmentWrapper.visibility = View.VISIBLE
+            anim.start()
+
+        }
+
     }
 }

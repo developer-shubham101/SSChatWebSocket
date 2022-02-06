@@ -77,11 +77,11 @@ class UploadFileProgressFragment : Fragment() {
 
             override fun onProgressUpdate(currentpercent: Int, totalpercent: Int) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    binding!!.progressBar.setProgress(currentpercent, true)
+                    binding.progressBar.setProgress(currentpercent, true)
                 } else {
-                    binding!!.progressBar.progress = currentpercent
+                    binding.progressBar.progress = currentpercent
                 }
-                binding!!.progressPercentage.text = "$currentpercent%"
+                binding.progressPercentage.text = "$currentpercent%"
                 //				updateProgress(totalpercent, "Uploading file " + filenumber, "");
                 Log.e("Progress Status", "$currentpercent $totalpercent")
             }

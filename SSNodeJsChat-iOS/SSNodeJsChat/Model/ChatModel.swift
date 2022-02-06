@@ -140,7 +140,7 @@ public class ChatModel {
        
         if let date = t.toDate(format: "yyyy-MM-dd'T'HH:mm:ss.SSSX"){
             createdDate = date.noon
-            message_on = date.toString(format: "HH:mm:ss")//Utils.dayDifference(from: date)
+            message_on = date.toString(format: "HH:mm a")//Utils.dayDifference(from: date)
         }
 	}
 }

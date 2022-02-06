@@ -20,41 +20,57 @@
             android:layout_marginLeft="8dp"
             android:layout_marginTop="8dp"
             android:minWidth="100dp"
+
             android:layout_marginEnd="24dp"
             android:layout_marginRight="24dp"
             android:padding="3dp"
-            android:background="@drawable/bg_left_chat"
+            android:background="@drawable/shape_bg_outgoinging_bubble"
             android:orientation="vertical">
 
-            <com.cusom.views.CustomFontTextView
+            <TextView
+                android:id="@+id/chatLeftTextUserName"
+                android:layout_width="wrap_content"
+                android:text="userName"
+                android:paddingLeft="7dp"
+                android:paddingRight="5dp"
+                android:singleLine="true"
+                android:textSize="13sp"
+                android:layout_height="wrap_content"/>
+
+            <TextView
                 android:id="@+id/chatLeftTextMessage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
-
-                android:textColor="@android:color/black"
+                android:paddingLeft="7dp"
+                android:paddingRight="5dp"
+                android:layout_marginTop="2dp"
+                android:textColor="@android:color/white"
                 android:textSize="14sp"
                 tools:text="@tools:sample/lorem" />
 
+            <TextView
+                android:id="@+id/chatLeftTextTime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+
+                android:gravity="end"
+                android:maxLines="1"
+                android:layout_marginTop="2dp"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+
+                android:textSize="12sp"
+                android:textColor="@color/colorGrey"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/chatLeftTextMessage"
+                tools:text="@tools:sample/date/hhmm"
+                />
+
         </LinearLayout>
 
-        <com.cusom.views.CustomFontTextView
-            android:id="@+id/chatLeftTextTime"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:ellipsize="end"
-            android:gravity="start"
-            android:maxLines="1"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="2dp"
 
-
-            android:textSize="12sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/chatLeftTextMessage"
-            tools:text="@tools:sample/date/hhmm"
-            android:layout_marginLeft="8dp" />
 
 
     </LinearLayout>

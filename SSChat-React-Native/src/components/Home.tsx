@@ -1,20 +1,28 @@
-import React, { useEffect, useState } from "react";
-import { FlatList, ListRenderItem, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { useDispatch, useSelector } from "react-redux";
-import * as t from "../redux/types";
-import { useRoom } from "../hooks/useRoom";
-import { ReducerRoot, RoomList, RoomType, UserList } from "../type";
-import { logout } from "../redux/action";
+import React, { useEffect, useState } from 'react';
+import {
+  FlatList,
+  ListRenderItem,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import * as t from '../redux/types';
+import { useRoom } from '../hooks/useRoom';
+import { ReducerRoot, RoomList, RoomType, UserList } from '../type';
+import { logout } from '../redux/action';
 
 const Home = ({ navigation }) => {
-
   const dispatch = useDispatch();
 
   const [randomKey, setRandomKey] = useState<number>();
 
   const { roomsList, usersList } = useRoom();
-  const loggedInUser = useSelector<ReducerRoot, UserList | null | undefined>(state => state.reducer.loggedInUser);
-
+  const loggedInUser = useSelector<ReducerRoot, UserList | null | undefined>(
+    (state) => state.reducer.loggedInUser,
+  );
 
   useEffect(() => {
     console.log('Max::: useRoom', usersList);
@@ -44,24 +52,31 @@ const Home = ({ navigation }) => {
   // }
 
   const renderRestaurantRows: ListRenderItem<RoomList> = ({ item }) => {
-
-
     if (item.type == RoomType.group) {
-      return <TouchableOpacity
-        onPress={() => {
-          console.log('Shubham::::', item);
-          dispatch({ type: t.CREATE_ROOM_SUCCESS, payload: item });
-          navigation.navigate("ChatScreen");
-        }}
-        style={{
-          borderBottomWidth: 1,
-          borderColor: "grey",
-          paddingVertical: 20
-        }}>
-        <Text style={{ color: "black" }}>{item?.group_details?.group_name ?? item._id}</Text>
-        <Text style={{ color: "black" }}>{`Last Message: ${item.last_message ?? ''}`}</Text>
-        <Text style={{ color: "black" }}>{`At: ${item.last_message_time.toString()}`}</Text>
-      </TouchableOpacity>;
+      return (
+        <TouchableOpacity
+          onPress={() => {
+            console.log('Shubham::::', item);
+            dispatch({ type: t.CREATE_ROOM_SUCCESS, payload: item });
+            navigation.navigate('ChatScreen');
+          }}
+          style={{
+            borderBottomWidth: 1,
+            borderColor: 'grey',
+            paddingVertical: 20,
+          }}
+        >
+          <Text style={{ color: 'black' }}>
+            {item?.group_details?.group_name ?? item._id}
+          </Text>
+          <Text style={{ color: 'black' }}>{`Last Message: ${
+            item.last_message ?? ''
+          }`}</Text>
+          <Text
+            style={{ color: 'black' }}
+          >{`At: ${item.last_message_time.toString()}`}</Text>
+        </TouchableOpacity>
+      );
     }
 
     let otherUserID = item.userList.find((e) => e != loggedInUser?.userId);
@@ -70,23 +85,33 @@ const Home = ({ navigation }) => {
       return e.userId.toString() == otherUserID;
     });
 
-    return <TouchableOpacity
-      onPress={() => {
-        console.log('Shubham::::', item);
-        dispatch({ type: t.CREATE_ROOM_SUCCESS, payload: item });
-        navigation.navigate("ChatScreen");
-      }}
-      style={{
-        borderBottomWidth: 1,
-        borderColor: "grey",
-        paddingVertical: 20
-      }}>
-      <Text style={{ color: "black" }}>{otherUser?.firstName ?? item._id}</Text>
-      <Text style={{ color: "black" }}>{`Last Message: ${item.last_message ?? ''}`}</Text>
-      <Text style={{ color: "black" }}>{`At: ${item.last_message_time.toString()}`}</Text>
-      <Text style={{ color: "black" }}>{otherUser?.is_online ? 'Online' : 'Offline'}</Text>
-    </TouchableOpacity>;
-
+    return (
+      <TouchableOpacity
+        onPress={() => {
+          console.log('Shubham::::', item);
+          dispatch({ type: t.CREATE_ROOM_SUCCESS, payload: item });
+          navigation.navigate('ChatScreen');
+        }}
+        style={{
+          borderBottomWidth: 1,
+          borderColor: 'grey',
+          paddingVertical: 20,
+        }}
+      >
+        <Text style={{ color: 'black' }}>
+          {otherUser?.firstName ?? item._id}
+        </Text>
+        <Text style={{ color: 'black' }}>{`Last Message: ${
+          item.last_message ?? ''
+        }`}</Text>
+        <Text
+          style={{ color: 'black' }}
+        >{`At: ${item.last_message_time.toString()}`}</Text>
+        <Text style={{ color: 'black' }}>
+          {otherUser?.is_online ? 'Online' : 'Offline'}
+        </Text>
+      </TouchableOpacity>
+    );
   };
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -97,13 +122,17 @@ const Home = ({ navigation }) => {
             //TODO:- Logout
 
             dispatch(logout());
-          }}>
+          }}
+        >
           <Text
-            style={{ color: "black", fontWeight: "bold", marginVertical: 10 }}>
+            style={{ color: 'black', fontWeight: 'bold', marginVertical: 10 }}
+          >
             BACK
           </Text>
         </TouchableOpacity>
-        <Text style={{ color: "black", fontWeight: "bold", marginVertical: 10 }}>
+        <Text
+          style={{ color: 'black', fontWeight: 'bold', marginVertical: 10 }}
+        >
           Chat With :
         </Text>
         <FlatList
@@ -115,9 +144,10 @@ const Home = ({ navigation }) => {
         />
         <TouchableOpacity
           onPress={() => {
-            navigation.navigate("UsersList");
+            navigation.navigate('UsersList');
           }}
-          style={styles.newUserChat}>
+          style={styles.newUserChat}
+        >
           <Text style={styles.plusIcon}>+</Text>
         </TouchableOpacity>
       </View>
@@ -126,39 +156,39 @@ const Home = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, flexDirection: "column", padding: 15 },
+  container: { flex: 1, flexDirection: 'column', padding: 15 },
   subContainer: { marginTop: 100, marginEnd: 15, marginStart: 15 },
   textInput: {
     height: 60,
     width: 300,
     borderWidth: 1,
-    borderColor: "white",
+    borderColor: 'white',
     marginVertical: 10,
-    paddingHorizontal: 10
+    paddingHorizontal: 10,
   },
   touchableStyle: {
     marginTop: 20,
     paddingHorizontal: 20,
     paddingVertical: 5,
-    backgroundColor: "black"
+    backgroundColor: 'black',
   },
   label: { marginTop: 10 },
   newUserChat: {
     width: 50,
     height: 50,
-    borderColor: "black",
-    backgroundColor: "black",
+    borderColor: 'black',
+    backgroundColor: 'black',
     borderRadius: 25,
     borderWidth: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    alignSelf: "flex-end"
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'flex-end',
   },
   plusIcon: {
     fontSize: 40,
-    textAlign: "center",
-    fontWeight: "bold",
-    color: "white"
+    textAlign: 'center',
+    fontWeight: 'bold',
+    color: 'white',
   },
   inputBox: {
     height: 50,
@@ -166,10 +196,10 @@ const styles = StyleSheet.create({
     marginTop: 10,
     borderRadius: 25,
     paddingStart: 20,
-    justifyContent: "center",
-    alignItems: "center"
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  buttonTitle: { color: "#ffffff", fontSize: 20 }
+  buttonTitle: { color: '#ffffff', fontSize: 20 },
 });
 
 export default Home;

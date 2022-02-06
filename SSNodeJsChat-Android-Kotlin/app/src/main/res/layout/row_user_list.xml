@@ -12,7 +12,7 @@
         android:layout_marginLeft="5dp"
         android:layout_marginTop="5dp"
         android:layout_marginRight="5dp"
-        card_view:cardElevation="3dp"
+        card_view:cardElevation="0dp"
         card_view:contentPaddingBottom="-3dp"
         card_view:contentPaddingLeft="-3dp"
         card_view:contentPaddingRight="-3dp"
@@ -20,35 +20,66 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
+            android:padding="5dp"
             android:layout_height="wrap_content"
             card_view:layout_constraintBottom_toTopOf="@+id/postDescription"
             card_view:layout_constraintTop_toTopOf="@+id/postDescription">
 
 
-            <com.cusom.views.CustomFontTextView
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/rowUserProfilePic"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+
+                android:src="@drawable/user_default_ic"
+                card_view:civ_border_color="@color/colorAccent"
+                card_view:civ_border_width="1dp"
+                card_view:layout_constraintStart_toStartOf="parent"
+                card_view:layout_constraintTop_toTopOf="parent" />
+
+            <ImageView
+                android:id="@+id/rowAllUserChked"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+
+                android:src="@drawable/ic_checked"
+
+                card_view:layout_constraintBottom_toBottomOf="@+id/rowUserProfilePic"
+                card_view:layout_constraintEnd_toEndOf="@+id/rowUserProfilePic" />
+
+            <TextView
                 android:id="@+id/rowAllUserName"
                 android:layout_width="0dp"
-                android:layout_height="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:layout_marginTop="1dp"
+                android:layout_marginLeft="5dp"
 
-
-                android:layout_marginStart="8dp"
-                android:layout_marginLeft="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginBottom="8dp"
+                android:textColor="@color/colorBlack"
                 android:textSize="14sp"
-                card_view:layout_constraintBottom_toBottomOf="parent"
-                card_view:layout_constraintEnd_toEndOf="parent"
-                card_view:layout_constraintStart_toEndOf="@+id/rowAllUserCheck"
+                card_view:layout_constraintStart_toEndOf="@+id/rowUserProfilePic"
                 card_view:layout_constraintTop_toTopOf="parent"
                 tools:text="@tools:sample/last_names" />
 
-            <CheckBox
-                android:id="@+id/rowAllUserCheck"
-                android:layout_width="wrap_content"
+            <TextView
+                android:id="@+id/rowUserSubTitle"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                card_view:layout_constraintStart_toStartOf="parent" />
+                android:layout_marginStart="5dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="1dp"
+
+                android:textSize="12sp"
+
+                card_view:layout_constraintStart_toEndOf="@+id/rowUserProfilePic"
+                card_view:layout_constraintTop_toBottomOf="@+id/rowAllUserName"
+                tools:text="@tools:sample/last_names" />
+
+            <!-- <CheckBox
+                 android:id="@+id/rowAllUserCheck"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 card_view:layout_constraintStart_toStartOf="parent" />-->
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>

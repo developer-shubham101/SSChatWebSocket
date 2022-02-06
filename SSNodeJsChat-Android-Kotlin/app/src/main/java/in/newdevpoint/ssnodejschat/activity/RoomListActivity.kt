@@ -16,9 +16,11 @@ import `in`.newdevpoint.ssnodejschat.webService.ResponseModel
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.PopupMenu
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.Gson
@@ -28,7 +30,8 @@ import org.json.JSONException
 import org.json.JSONObject
 import java.util.*
 
-class RoomListActivity : AppCompatActivity(), WebSocketObserver {
+class RoomListActivity : AppCompatActivity(), WebSocketObserver, View.OnClickListener,
+    PopupMenu.OnMenuItemClickListener {
     private val alterNativeUserList: HashMap<String, FSUsersModel> = HashMap<String, FSUsersModel>()
     private lateinit var adapter: RoomListAdapter
     private lateinit var roomListBinding: ActivityRoomListBinding
@@ -37,9 +40,29 @@ class RoomListActivity : AppCompatActivity(), WebSocketObserver {
         roomListBinding = DataBindingUtil.setContentView(this, R.layout.activity_room_list)
         WebSocketSingleton.Companion.getInstant()!!.register(this)
         initRecycler()
-        roomListBinding.openAllUsers.setOnClickListener { v: View? -> startActivity(Intent(this@RoomListActivity, AllUsersListActivity::class.java)) }
-        roomListBinding.homNotification.setOnClickListener { v: View? -> startActivity(Intent(this, UpdateProfileActivity::class.java)) }
+        roomListBinding.chatSetting.setOnClickListener(this)
+        roomListBinding.backBtnImage.setOnClickListener(this)
+        roomListBinding.openAllUsers.setOnClickListener(this)
+
         joinCommand()
+
+    }
+
+    override fun onClick(v: View?) {
+        when (v) {
+            roomListBinding.chatSetting -> {
+                val popup = PopupMenu(this@RoomListActivity, v)
+                popup.setOnMenuItemClickListener(this@RoomListActivity)
+                popup.inflate(R.menu.roomlist_chatmenu)
+                popup.show()
+            }
+            roomListBinding.backBtnImage -> {
+                finish()
+            }
+            roomListBinding.openAllUsers -> {
+                startActivity(Intent(this@RoomListActivity, AllUsersListActivity::class.java))
+            }
+        }
     }
 
     private fun initRecycler() {
@@ -48,16 +71,22 @@ class RoomListActivity : AppCompatActivity(), WebSocketObserver {
             override fun onClick(item: FSRoomModel) {
                 val intent = Intent(this@RoomListActivity, ChatActivity::class.java)
                 intent.putExtra(ChatActivity.Companion.INTENT_EXTRAS_KEY_IS_GROUP, item.isGroup)
-                intent.putExtra(ChatActivity.Companion.INTENT_EXTRAS_KEY_GROUP_DETAILS, item.groupDetails)
+                intent.putExtra(
+                    ChatActivity.Companion.INTENT_EXTRAS_KEY_GROUP_DETAILS,
+                    item.groupDetails
+                )
                 intent.putExtra(ChatActivity.Companion.INTENT_EXTRAS_KEY_ROOM_ID, item.roomId)
-                intent.putExtra(ChatActivity.Companion.INTENT_EXTRAS_KEY_SENDER_DETAILS, item.senderUserDetail)
+                intent.putExtra(
+                    ChatActivity.Companion.INTENT_EXTRAS_KEY_SENDER_DETAILS,
+                    item.senderUserDetail
+                )
                 startActivity(intent)
             }
         })
-        roomListBinding!!.usersList.setHasFixedSize(true)
+        roomListBinding.usersList.setHasFixedSize(true)
         val mLayoutManager = LinearLayoutManager(this)
-        roomListBinding!!.usersList.layoutManager = mLayoutManager
-        roomListBinding!!.usersList.adapter = adapter
+        roomListBinding.usersList.layoutManager = mLayoutManager
+        roomListBinding.usersList.adapter = adapter
     }
 
     private fun joinCommand() {
@@ -75,7 +104,12 @@ class RoomListActivity : AppCompatActivity(), WebSocketObserver {
         WebSocketSingleton.Companion.getInstant()!!.sendMessage(jsonObject)
     }
 
-    override fun onWebSocketResponse(response: String, type: String, statusCode: Int, message: String?) {
+    override fun onWebSocketResponse(
+        response: String,
+        type: String,
+        statusCode: Int,
+        message: String?
+    ) {
         try {
             runOnUiThread {
                 println("received message: $response")
@@ -83,7 +117,8 @@ class RoomListActivity : AppCompatActivity(), WebSocketObserver {
                 if (ResponseType.RESPONSE_TYPE_ROOM.equalsTo(type)) {
                     if (statusCode == 200) {
                         val type1 = object : TypeToken<ResponseModel<RoomResponseModel?>?>() {}.type
-                        val roomResponseModelResponseModel: ResponseModel<RoomResponseModel> = gson.fromJson(response, type1)
+                        val roomResponseModelResponseModel: ResponseModel<RoomResponseModel> =
+                            gson.fromJson(response, type1)
                         UserDetails.chatUsers = roomResponseModelResponseModel.getData().userListMap
                         for (element in roomResponseModelResponseModel.getData().roomList) {
                             for (userId in element.userList) {
@@ -101,10 +136,12 @@ class RoomListActivity : AppCompatActivity(), WebSocketObserver {
                 } else if (ResponseType.RESPONSE_TYPE_ROOM_MODIFIED.equalsTo(type)) {
                     if (statusCode == 200) {
                         val type1 = object : TypeToken<ResponseModel<FSRoomModel?>?>() {}.type
-                        val roomResponseModelResponseModel: ResponseModel<FSRoomModel> = gson.fromJson<ResponseModel<FSRoomModel>>(response, type1)
+                        val roomResponseModelResponseModel: ResponseModel<FSRoomModel> =
+                            gson.fromJson<ResponseModel<FSRoomModel>>(response, type1)
                         for (userId in roomResponseModelResponseModel.getData().userList) {
                             if (userId != UserDetails.myDetail.id) {
-                                roomResponseModelResponseModel.getData().senderUserDetail = UserDetails.chatUsers[userId]
+                                roomResponseModelResponseModel.getData().senderUserDetail =
+                                    UserDetails.chatUsers[userId]
                                 break
                             }
                         }
@@ -114,13 +151,17 @@ class RoomListActivity : AppCompatActivity(), WebSocketObserver {
                     }
                 } else if (ResponseType.RESPONSE_TYPE_CREATE_ROOM.equalsTo(type)) {
                     if (statusCode == 200) {
-                        val type1 = object : TypeToken<ResponseModel<RoomNewResponseModel?>?>() {}.type
-                        val roomResponseModelResponseModel: ResponseModel<RoomNewResponseModel> = gson.fromJson(response, type1)
-                        val tmpUserList: HashMap<String, FSUsersModel> = roomResponseModelResponseModel.getData().userListMap
+                        val type1 =
+                            object : TypeToken<ResponseModel<RoomNewResponseModel?>?>() {}.type
+                        val roomResponseModelResponseModel: ResponseModel<RoomNewResponseModel> =
+                            gson.fromJson(response, type1)
+                        val tmpUserList: HashMap<String, FSUsersModel> =
+                            roomResponseModelResponseModel.getData().userListMap
                         for (key in tmpUserList.keys) {
                             UserDetails.chatUsers[key] = tmpUserList[key]!!
                         }
-                        val element: FSRoomModel = roomResponseModelResponseModel.getData().newRoom!!
+                        val element: FSRoomModel =
+                            roomResponseModelResponseModel.getData().newRoom!!
                         for (userId in element.userList) {
                             if (userId != UserDetails.myDetail.id) {
                                 element.senderUserDetail = UserDetails.chatUsers[userId]
@@ -131,7 +172,8 @@ class RoomListActivity : AppCompatActivity(), WebSocketObserver {
                     } else if (ResponseType.RESPONSE_TYPE_USER_MODIFIED.equalsTo(type)) {
                         Log.d(TAG, "received message: $response")
                         val type1 = object : TypeToken<ResponseModel<FSUsersModel?>?>() {}.type
-                        val fsUsersModelResponseModel: ResponseModel<FSUsersModel> = Gson().fromJson<ResponseModel<FSUsersModel>>(response, type1)
+                        val fsUsersModelResponseModel: ResponseModel<FSUsersModel> =
+                            Gson().fromJson<ResponseModel<FSUsersModel>>(response, type1)
                         adapter.updateUserElement(fsUsersModelResponseModel.getData())
                     } else {
                         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
@@ -150,14 +192,29 @@ class RoomListActivity : AppCompatActivity(), WebSocketObserver {
 
     override fun registerFor(): Array<ResponseType> {
         return arrayOf(
-                ResponseType.RESPONSE_TYPE_ROOM,
-                ResponseType.RESPONSE_TYPE_ROOM_MODIFIED,
-                ResponseType.RESPONSE_TYPE_CREATE_ROOM,
-                ResponseType.RESPONSE_TYPE_USER_MODIFIED
+            ResponseType.RESPONSE_TYPE_ROOM,
+            ResponseType.RESPONSE_TYPE_ROOM_MODIFIED,
+            ResponseType.RESPONSE_TYPE_CREATE_ROOM,
+            ResponseType.RESPONSE_TYPE_USER_MODIFIED
         )
     }
 
     companion object {
         private const val TAG = "RoomListActivity:"
+    }
+
+    override fun onMenuItemClick(item: MenuItem?): Boolean {
+        return when (item!!.itemId) {
+            R.id.edit_profile_menu -> {
+                startActivity(Intent(this, UpdateProfileActivity::class.java))
+                true
+            }
+            R.id.new_group_menu ->
+                true
+            R.id.setting_menu ->
+                true
+
+            else -> false
+        }
     }
 }

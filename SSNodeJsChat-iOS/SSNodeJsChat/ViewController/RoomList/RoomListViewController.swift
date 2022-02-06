@@ -106,7 +106,7 @@ extension RoomListViewController: UITableViewDelegate, UITableViewDataSource {
         let identifier = "ChatTableViewCell"
         var cell: ChatTableViewCell! = tableView.dequeueReusableCell(withIdentifier: identifier) as? ChatTableViewCell
         if cell == nil {
-            tableView.register(UINib(nibName: "ChatTableViewCell", bundle: nil), forCellReuseIdentifier: identifier)
+            tableView.register(UINib(nibName: identifier, bundle: nil), forCellReuseIdentifier: identifier)
             cell = tableView.dequeueReusableCell(withIdentifier: identifier) as? ChatTableViewCell
         }
         cell.configData(obj: tableItems[indexPath.row])

@@ -22,7 +22,7 @@ class SplashActivity : AppCompatActivity() {
             val intent = intent
             val handler = Handler(Looper.myLooper()!!)
             handler.postDelayed({
-                PreferenceUtils.getRegisterUser(this)?.let { userDetails ->
+                PreferenceUtils.getRegisterUser()?.let { userDetails ->
                     UserDetails.myDetail = userDetails
                     startActivity(Intent(this@SplashActivity, RoomListActivity::class.java))
                     val jsonObject = JSONObject()
