@@ -8,29 +8,37 @@
 import UIKit
 
 class UserTableViewCell: UITableViewCell {
-
+    
     @IBOutlet weak var profilePic: UIImageView!
     @IBOutlet weak var username: UILabel!
     @IBOutlet weak var otherData: UILabel!
+    @IBOutlet weak var selectedUser: UIImageView!
     
     
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
     }
-
+    
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
-
+        
         // Configure the view for the selected state
     }
-    func configData(obj: UserDetailsModel) {
-        username.text = "\(obj.firstName) (\(obj.userName))"
-//        otherData.text = obj.last_message
+    func configData(obj: UserDetailsModel, isSelectedGroup: Bool) {
         
-//        profilePic.sd_setImage(with: URL(string:obj.receiver_detail.profile_picture), completed: { (image, error, cache, url) in
-//            
-//        })
+        selectedUser.isHidden = !isSelectedGroup
+        
+        username.text = "\(obj.firstName) (\(obj.userName))"
+        
+        profilePic.sd_setImage(with: URL(string: obj.profile_pic), completed: { (image, error, cache, url) in
+            if ((error) != nil) {
+                self.profilePic.image = UIImage(named: "ic_placeholder_profile")
+            }
+        })
+        
+        
+        selectedUser.image = obj.isSelectedForGroup ? UIImage(named: "ic_check") : UIImage(named: "ic_uncheck")
     }
     
 }

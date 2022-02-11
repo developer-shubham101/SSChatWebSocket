@@ -117,9 +117,14 @@
 		72E37F8B25950A6D00E0F8B8 /* ChatTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72E37F8925950A6D00E0F8B8 /* ChatTableViewCell.swift */; };
 		72E37F8C25950A6D00E0F8B8 /* ChatTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 72E37F8A25950A6D00E0F8B8 /* ChatTableViewCell.xib */; };
 		72E37F9125950AB400E0F8B8 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72E37F9025950AB400E0F8B8 /* Utils.swift */; };
+		759570C727B63E46003E6B3D /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 759570C627B63E46003E6B3D /* Config.swift */; };
+		75DBFED02793267300126723 /* GroupInfoRowTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75DBFECE2793267300126723 /* GroupInfoRowTableViewCell.swift */; };
+		75DBFED12793267300126723 /* GroupInfoRowTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 75DBFECF2793267300126723 /* GroupInfoRowTableViewCell.xib */; };
 		75DE055425E7AE72009D607E /* SocketMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75DE055325E7AE72009D607E /* SocketMessage.swift */; };
 		75DE055C25E7AF34009D607E /* SocketObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75DE055B25E7AF34009D607E /* SocketObserver.swift */; };
 		75DE056425E7B102009D607E /* SocketManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75DE056325E7B102009D607E /* SocketManager.swift */; };
+		75E56252279051C400A312C2 /* GroupInformationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75E56250279051C400A312C2 /* GroupInformationViewController.swift */; };
+		75E56253279051C400A312C2 /* GroupInformationViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 75E56251279051C400A312C2 /* GroupInformationViewController.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -258,9 +263,14 @@
 		72E37F8925950A6D00E0F8B8 /* ChatTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatTableViewCell.swift; sourceTree = "<group>"; };
 		72E37F8A25950A6D00E0F8B8 /* ChatTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ChatTableViewCell.xib; sourceTree = "<group>"; };
 		72E37F9025950AB400E0F8B8 /* Utils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
+		759570C627B63E46003E6B3D /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
+		75DBFECE2793267300126723 /* GroupInfoRowTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupInfoRowTableViewCell.swift; sourceTree = "<group>"; };
+		75DBFECF2793267300126723 /* GroupInfoRowTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = GroupInfoRowTableViewCell.xib; sourceTree = "<group>"; };
 		75DE055325E7AE72009D607E /* SocketMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocketMessage.swift; sourceTree = "<group>"; };
 		75DE055B25E7AF34009D607E /* SocketObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocketObserver.swift; sourceTree = "<group>"; };
 		75DE056325E7B102009D607E /* SocketManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocketManager.swift; sourceTree = "<group>"; };
+		75E56250279051C400A312C2 /* GroupInformationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupInformationViewController.swift; sourceTree = "<group>"; };
+		75E56251279051C400A312C2 /* GroupInformationViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = GroupInformationViewController.xib; sourceTree = "<group>"; };
 		7E8EFF0C5D3810EF182712F0 /* Pods-SSNodeJsChat-SSNodeJsChatUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SSNodeJsChat-SSNodeJsChatUITests.release.xcconfig"; path = "Target Support Files/Pods-SSNodeJsChat-SSNodeJsChatUITests/Pods-SSNodeJsChat-SSNodeJsChatUITests.release.xcconfig"; sourceTree = "<group>"; };
 		92CD07ED2EBF126E96D10838 /* Pods-SSNodeJsChatTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SSNodeJsChatTests.release.xcconfig"; path = "Target Support Files/Pods-SSNodeJsChatTests/Pods-SSNodeJsChatTests.release.xcconfig"; sourceTree = "<group>"; };
 		B06729F8CE9B8032BE33A463 /* Pods_SSNodeJsChatTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SSNodeJsChatTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -598,6 +608,7 @@
 		7224290C25BD8C5700CD8AA0 /* TableCollectionCells */ = {
 			isa = PBXGroup;
 			children = (
+				75DBFECD2793265100126723 /* GroupInfoRow */,
 				721EAA7C26358F8B00826DDE /* SampleUserCell */,
 				7209646625BDDD8900651A04 /* ContactCell */,
 				7209646925BDDD8900651A04 /* SelectedContactCell */,
@@ -620,6 +631,7 @@
 		7224291525BD99EF00CD8AA0 /* ViewController */ = {
 			isa = PBXGroup;
 			children = (
+				75E5624F2790519F00A312C2 /* GroupInformation */,
 				72CCCEBF26358D9E00818F35 /* UsersListForLogin */,
 				72CCCEB826358C2700818F35 /* UsernameViewController */,
 				72C97E92262B051800A8B1CB /* ProfileViewController */,
@@ -778,6 +790,7 @@
 				72E37F462595060900E0F8B8 /* Assets.xcassets */,
 				72E37F482595060900E0F8B8 /* LaunchScreen.storyboard */,
 				72E37F4B2595060900E0F8B8 /* Info.plist */,
+				759570C627B63E46003E6B3D /* Config.swift */,
 			);
 			path = SSNodeJsChat;
 			sourceTree = "<group>";
@@ -818,6 +831,15 @@
 			path = ChatTableViewCell;
 			sourceTree = "<group>";
 		};
+		75DBFECD2793265100126723 /* GroupInfoRow */ = {
+			isa = PBXGroup;
+			children = (
+				75DBFECE2793267300126723 /* GroupInfoRowTableViewCell.swift */,
+				75DBFECF2793267300126723 /* GroupInfoRowTableViewCell.xib */,
+			);
+			path = GroupInfoRow;
+			sourceTree = "<group>";
+		};
 		75DE055225E7AE51009D607E /* SocketObserver */ = {
 			isa = PBXGroup;
 			children = (
@@ -826,6 +848,15 @@
 				75DE056325E7B102009D607E /* SocketManager.swift */,
 			);
 			path = SocketObserver;
+			sourceTree = "<group>";
+		};
+		75E5624F2790519F00A312C2 /* GroupInformation */ = {
+			isa = PBXGroup;
+			children = (
+				75E56250279051C400A312C2 /* GroupInformationViewController.swift */,
+				75E56251279051C400A312C2 /* GroupInformationViewController.xib */,
+			);
+			path = GroupInformation;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -970,9 +1001,11 @@
 				7222B6FA25BDD95100888A64 /* LeftDocTableViewCell.xib in Resources */,
 				721EAB1C2635BC7A00826DDE /* GoogleService-Info.plist in Resources */,
 				7222B65C25BDD6F300888A64 /* GPVideoPlayer.xib in Resources */,
+				75E56253279051C400A312C2 /* GroupInformationViewController.xib in Resources */,
 				721EAA872635917000826DDE /* LoginViewController.xib in Resources */,
 				7222B6E425BDD95100888A64 /* LeftTextTableViewCell.xib in Resources */,
 				7222B65E25BDD6F300888A64 /* SSAudioPlayer.xib in Resources */,
+				75DBFED12793267300126723 /* GroupInfoRowTableViewCell.xib in Resources */,
 				7222B6E625BDD95100888A64 /* RightContactTableViewCell.xib in Resources */,
 				7222B6F725BDD95100888A64 /* LeftImageTableViewCell.xib in Resources */,
 				7222B6F625BDD95100888A64 /* RightDocTableViewCell.xib in Resources */,
@@ -1160,10 +1193,12 @@
 				7222B6F825BDD95100888A64 /* LeftImageTableViewCell.swift in Sources */,
 				7224291025BD8CA500CD8AA0 /* RoomListViewController.swift in Sources */,
 				7222B6F425BDD95100888A64 /* LeftVideoTableViewCell.swift in Sources */,
+				75E56252279051C400A312C2 /* GroupInformationViewController.swift in Sources */,
 				72C97E9E262B3AE400A8B1CB /* KMPlaceholderTextView.swift in Sources */,
 				7222B69D25BDD8B700888A64 /* PlacePickerController.swift in Sources */,
 				7222B64725BDD5CB00888A64 /* ContactViewModel.swift in Sources */,
 				7222B6F925BDD95100888A64 /* LeftDocTableViewCell.swift in Sources */,
+				75DBFED02793267300126723 /* GroupInfoRowTableViewCell.swift in Sources */,
 				7222B6A625BDD8B700888A64 /* DefaultPlacesListRenderer.swift in Sources */,
 				75DE055425E7AE72009D607E /* SocketMessage.swift in Sources */,
 				7222B6E825BDD95100888A64 /* RightImageTableViewCell.swift in Sources */,
@@ -1180,6 +1215,7 @@
 				7222B67A25BDD7E300888A64 /* NetworkManager.swift in Sources */,
 				7222B69E25BDD8B700888A64 /* PlacesListRenderer.swift in Sources */,
 				72E37F7D259509C100E0F8B8 /* ChatViewController.swift in Sources */,
+				759570C727B63E46003E6B3D /* Config.swift in Sources */,
 				72E37F9125950AB400E0F8B8 /* Utils.swift in Sources */,
 				724959CD260B74C300F7CACF /* Constants.swift in Sources */,
 				7222B6F025BDD95100888A64 /* RightLocationTableViewCell.swift in Sources */,

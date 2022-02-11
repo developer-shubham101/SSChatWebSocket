@@ -28,15 +28,18 @@ class LeftTextTableViewCell: UITableViewCell {
 		
 		// Configure the view for the selected state
 	}
-	func configData(obj: ChatModel){
-		time.text = obj.message_on
+    func configData(obj: ChatModel, isGroup: Bool){
+        if isGroup {
+            time.text = "By: \(obj.sender_detail.firstName) (\(obj.message_on))"
+        } else {
+            time.text = obj.message_on
+        }
+        
 		chatMessage.text = obj.message
 		if obj.message_type == .replay {
 			if let locationModel: ReplayModel = obj.message_content as? ReplayModel {
 				quotMessage.text = locationModel.originMessage
 			}
 		}
-		
-		
 	}
 }

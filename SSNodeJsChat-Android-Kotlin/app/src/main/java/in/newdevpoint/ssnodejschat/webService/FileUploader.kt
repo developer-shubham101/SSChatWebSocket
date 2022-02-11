@@ -92,12 +92,10 @@ class FileUploader {
     }
 
     private interface UploadInterface {
-        // @POST("upload")
-        @POST("user-tryster-chat-file")
+         @POST("upload")
         fun uploadFile(@Body requestBody: MultipartBody?, @Header("Authorization") authorization: String?): Call<JsonElement>
 
-        //@POST("upload")
-        @POST("user-tryster-chat-file")
+        @POST("upload")
         fun uploadFile(@Body requestBody: MultipartBody?): Call<JsonElement>
     }
 

@@ -1,6 +1,6 @@
 //
 //  ContactViewModel.swift
-//  Reward
+//  SSNodeJsChat
 //
 //  Created by Shubham Sharma on 22/11/19.
 //  Copyright © 2019 Shubham Sharma. All rights reserved.

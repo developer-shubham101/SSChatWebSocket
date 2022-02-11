@@ -12,8 +12,9 @@ class AppApplication : Application() {
     }
 
     companion object {
-        
-        var USER_PROFILE_DEFAULT_GLIDE_CONFIG = RequestOptions().placeholder(R.drawable.user_profile_image).error(R.drawable.user_profile_image)
+        var USER_PROFILE_DEFAULT_GLIDE_CONFIG =
+            RequestOptions().placeholder(R.drawable.user_profile_image)
+                .error(R.drawable.user_profile_image)
         lateinit var applicationContext: Context
     }
 }

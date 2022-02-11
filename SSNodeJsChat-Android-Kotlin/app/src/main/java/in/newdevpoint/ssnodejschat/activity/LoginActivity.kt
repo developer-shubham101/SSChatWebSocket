@@ -1,5 +1,6 @@
 package `in`.newdevpoint.ssnodejschat.activity
 
+import TmpUserModel
 import `in`.newdevpoint.ssnodejschat.R
 import `in`.newdevpoint.ssnodejschat.databinding.ActivityLoginBinding
 import `in`.newdevpoint.ssnodejschat.model.FSUsersModel
@@ -22,14 +23,14 @@ import com.google.gson.reflect.TypeToken
 import org.json.JSONException
 import org.json.JSONObject
 
-internal class TmpUserModel(var email: String, var password: String, var userId: String, var name: String)
+
 class LoginActivity : AppCompatActivity(), WebSocketObserver {
     private val listOfTmpUsers = arrayOf(
-            TmpUserModel("anil@yopmail.com", "123456", "1", "Anil"),
-            TmpUserModel("amit@yopmail.com", "123456", "2", "Amit"),
-            TmpUserModel("shubham@yopmail.com", "123456", "3", "Shubham"),
-            TmpUserModel("ali@yopmail.com", "123456", "4", "Ali"),
-            TmpUserModel("samreen@yopmail.com", "123456", "5", "Samreen")
+        TmpUserModel("anil@yopmail.com", "123456", "1", "Anil"),
+        TmpUserModel("amit@yopmail.com", "123456", "2", "Amit"),
+        TmpUserModel("shubham@yopmail.com", "123456", "3", "Shubham"),
+        TmpUserModel("ali@yopmail.com", "123456", "4", "Ali"),
+        TmpUserModel("samreen@yopmail.com", "123456", "5", "Samreen")
     )
     private val tmpUserModel = listOfTmpUsers[0]
 
@@ -45,46 +46,61 @@ class LoginActivity : AppCompatActivity(), WebSocketObserver {
     }
 
     fun fetchLoginApi() {
-        if (loginBinding!!.loginUserEmail.text.toString().isEmpty()) {
+        if (loginBinding.loginUserEmail.text.toString().isEmpty()) {
             Toast.makeText(this, resources.getString(R.string.validation_email), Toast.LENGTH_SHORT).show()
             return
-        } else if (loginBinding!!.loginPassword.text.toString().isEmpty()) {
+        } else if (loginBinding.loginPassword.text.toString().isEmpty()) {
             Toast.makeText(this, resources.getString(R.string.validation_password), Toast.LENGTH_SHORT).show()
             return
-        } else if (!Validate.isEmail(loginBinding!!.loginUserEmail.text.toString())) {
+        } else if (!Validate.isEmail(loginBinding.loginUserEmail.text.toString())) {
             Toast.makeText(this, resources.getString(R.string.validation_valid_email), Toast.LENGTH_SHORT).show()
             return
         }
         //        mWaitingDialog.show();
-        val jsonObject = JSONObject()
-        try {
-            jsonObject.put("userId", tmpUserModel.userId)
-            jsonObject.put("userName", loginBinding!!.loginUserEmail.text.toString())
-            jsonObject.put("firstName", tmpUserModel.name)
-            jsonObject.put("password", loginBinding!!.loginPassword.text.toString())
-            jsonObject.put("fcm_token", PreferenceUtils.Companion.getDeviceToken(this))
-            jsonObject.put("type", "loginOrCreate")
-            jsonObject.put(KeyConstant.REQUEST_TYPE_KEY, KeyConstant.REQUEST_TYPE_LOGIN)
-            //            mWaitingDialog.show();
-            WebSocketSingleton.Companion.getInstant()!!.sendMessage(jsonObject)
-        } catch (e: JSONException) {
-            e.printStackTrace()
-        }
+        listOfTmpUsers.forEach { if(loginBinding.loginUserEmail.text.toString()==it.email){
+            val jsonObject = JSONObject()
+            try {
+                jsonObject.put("userId", it.userId)
+                jsonObject.put("userName", it.email)
+                jsonObject.put("firstName", it.name)
+                jsonObject.put("password", it.password)
+                jsonObject.put("fcm_token", PreferenceUtils.Companion.getDeviceToken(this))
+                jsonObject.put("type", "loginOrCreate")
+                jsonObject.put(KeyConstant.REQUEST_TYPE_KEY, KeyConstant.REQUEST_TYPE_LOGIN)
+                //            mWaitingDialog.show();
+                WebSocketSingleton.Companion.getInstant()!!.sendMessage(jsonObject)
+            } catch (e: JSONException) {
+                e.printStackTrace()
+            }
+
+
+        } }
     }
 
-    override fun onWebSocketResponse(response: String, type: String, statusCode: Int, message: String?) {
+    override fun onWebSocketResponse(
+        response: String,
+        type: String,
+        statusCode: Int,
+        message: String?
+    ) {
         try {
             runOnUiThread {
                 val gson = Gson()
                 if (ResponseType.RESPONSE_TYPE_LOGIN.equalsTo(type) || ResponseType.RESPONSE_TYPE_LOGIN_OR_CREATE.equalsTo(type)) {
                     val type1 = object : TypeToken<ResponseModel<FSUsersModel?>?>() {}.type
-                    val fsUsersModelResponseModel: ResponseModel<FSUsersModel> = gson.fromJson<ResponseModel<FSUsersModel>>(response, type1)
+                    val fsUsersModelResponseModel: ResponseModel<FSUsersModel> =
+                        gson.fromJson<ResponseModel<FSUsersModel>>(response, type1)
                     if (fsUsersModelResponseModel.getStatus_code() == 200) {
                         UserDetails.myDetail = fsUsersModelResponseModel.getData()
                         PreferenceUtils.Companion.loginUser(this@LoginActivity, fsUsersModelResponseModel.getData())
                         startActivity(Intent(this@LoginActivity, RoomListActivity::class.java))
+                       // finish()
                     } else {
-                        Toast.makeText(this@LoginActivity, fsUsersModelResponseModel.getMessage(), Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            this@LoginActivity,
+                            fsUsersModelResponseModel.getMessage(),
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 } else {
                     Log.d(TAG, "onWebSocketResponse: $type")
@@ -99,8 +115,9 @@ class LoginActivity : AppCompatActivity(), WebSocketObserver {
     override val activityName: String = LoginActivity::class.java.name
     override fun registerFor(): Array<ResponseType> {
         return arrayOf(
-                ResponseType.RESPONSE_TYPE_LOGIN,
-                ResponseType.RESPONSE_TYPE_LOGIN_OR_CREATE)
+            ResponseType.RESPONSE_TYPE_LOGIN,
+            ResponseType.RESPONSE_TYPE_LOGIN_OR_CREATE
+        )
     }
 
     companion object {

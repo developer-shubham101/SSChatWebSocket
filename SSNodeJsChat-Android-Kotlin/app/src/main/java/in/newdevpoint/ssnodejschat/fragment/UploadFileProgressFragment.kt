@@ -35,7 +35,7 @@ class UploadFileProgressFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_upload_file, container, false)
-        val view = binding.getRoot()
+        val view = binding.root
         //here data must be an instance of the class MarsDataProvider
 //		binding.setMarsdata(data);
         binding.progressPercentage.text = "10%"
@@ -77,11 +77,11 @@ class UploadFileProgressFragment : Fragment() {
 
             override fun onProgressUpdate(currentpercent: Int, totalpercent: Int) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    binding!!.progressBar.setProgress(currentpercent, true)
+                    binding.progressBar.setProgress(currentpercent, true)
                 } else {
-                    binding!!.progressBar.progress = currentpercent
+                    binding.progressBar.progress = currentpercent
                 }
-                binding!!.progressPercentage.text = "$currentpercent%"
+                binding.progressPercentage.text = "$currentpercent%"
                 //				updateProgress(totalpercent, "Uploading file " + filenumber, "");
                 Log.e("Progress Status", "$currentpercent $totalpercent")
             }

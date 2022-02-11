@@ -3,10 +3,9 @@ apply plugin: 'kotlin-android'
 apply plugin: 'com.google.gms.google-services'
 android {
     compileSdkVersion 32
-    buildToolsVersion "29.0.3"
     defaultConfig {
         applicationId "in.newdevpoint.ssnodejschat"
-        minSdkVersion 16
+        minSdkVersion 19
         targetSdkVersion 32
         versionCode 1
         versionName "1.0"
@@ -113,6 +112,9 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.0"
 //    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+
+    implementation 'de.hdodenhof:circleimageview:3.1.0'
+
 }
 
 repositories {

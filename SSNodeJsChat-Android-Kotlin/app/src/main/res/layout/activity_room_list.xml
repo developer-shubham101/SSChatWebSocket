@@ -5,6 +5,7 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
+        android:background="@color/colorWhite"
         android:layout_height="match_parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -37,7 +38,7 @@
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <com.cusom.views.CustomFontTextView
+            <TextView
                 android:id="@+id/titleToolbar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -52,17 +53,31 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <ImageView
-                android:id="@+id/homNotification"
-                android:layout_width="45dp"
-                android:layout_height="45dp"
+                android:id="@+id/chatSetting"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:layout_marginTop="2dp"
                 android:padding="10dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/ic_notification" />
 
-            <TextView
+                app:layout_constraintVertical_bias="0.375"
+                app:srcCompat="@drawable/ic_menu" />
+
+           <!-- <TextView
+                android:id="@+id/chatEditText"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:layout_marginTop="2dp"
+                android:padding="10dp"
+                android:text="Edit"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                />-->
+
+           <!-- <TextView
                 android:layout_width="17dp"
                 android:layout_height="17dp"
                 android:layout_marginTop="8dp"
@@ -74,7 +89,7 @@
                 android:textColor="@color/colorWhite"
                 android:textSize="9dp"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/homNotification" />
+                app:layout_constraintTop_toTopOf="@+id/homNotification" />-->
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -105,17 +120,19 @@
 
         </androidx.recyclerview.widget.RecyclerView>
 
+
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/openAllUsers"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="32dp"
-            android:layout_marginRight="32dp"
-            android:layout_marginBottom="32dp"
-            android:clickable="true"
+            android:layout_gravity="end"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:src="@drawable/ic_msg"
+
+            app:fabSize="auto"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
-
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

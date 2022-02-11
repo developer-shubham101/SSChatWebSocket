@@ -100,6 +100,10 @@ class ChatViewController: AppViewController, CNContactViewControllerDelegate, UI
     fileprivate static var clipboard: ChatModel?
     fileprivate var audioPlayer: SSAudioPlayer?
     
+    
+    
+    var roomInfo: ChatRoomModel?
+    
     ///if it is not group
     var individualDetail: UserDetailsModel?
     fileprivate var isMute: Bool = false
@@ -128,7 +132,11 @@ class ChatViewController: AppViewController, CNContactViewControllerDelegate, UI
     
     //MARK:- from previous controller
     var roomId: String = ""
-    var isGroup: Bool = false
+    var isGroup: Bool {
+        get {
+            return roomInfo?.isGroup ?? false
+        }
+    }
     
     
     
@@ -197,19 +205,28 @@ class ChatViewController: AppViewController, CNContactViewControllerDelegate, UI
     
     var lpgr: UILongPressGestureRecognizer!
     
-    
+    @objc func didTapGroupInfo(_ sender: UITapGestureRecognizer? = nil) {
+        let vc = GroupInformationViewController()
+        vc.roomInfo = roomInfo
+        self.navigationController?.pushViewController(vc, animated: true)
+    }
     fileprivate func setUpName(){
         if (isGroup){
-            
+            chatUserName.text = roomInfo?.groupDetail?.groupName
+            chatUserProfile.sd_setImage(with: roomInfo?.groupDetail?.groupIcon.getMediaUrl, completed: {(image, error, cache, url) in
+
+            })
+            let tap = UITapGestureRecognizer(target: self, action: #selector(self.didTapGroupInfo(_:)))
+            chatUserProfile.isUserInteractionEnabled = true
+            chatUserProfile.addGestureRecognizer(tap)
+
         } else {
-            if let tmpIndividualDetail = individualDetail{
+            if let tmpIndividualDetail = individualDetail {
                 chatUserName.text = tmpIndividualDetail.firstName
                 chatUserOnlineStatus.text = tmpIndividualDetail.is_online ? "Online" : tmpIndividualDetail.last_seen
-                
-                
-                //                chatUserProfile.sd_setImage(with: NetworkManager.URL_ABOUT_US, completed: { (image, error, cache, url) in
-                //
-                //                })
+                chatUserProfile.sd_setImage(with: tmpIndividualDetail.profile_pic.getMediaUrl, completed: {(image, error, cache, url) in
+
+                })
             }
             
         }
@@ -1259,7 +1276,7 @@ extension ChatViewController: UITableViewDelegate, UITableViewDataSource {
                 cell.time.frame.origin.y = cell.wrapperView.frame.maxY + 5 //cell.wrapperView.frame.height - cell.time.frame.height - 5
                 cell.time.frame.size.width = self.view.frame.width
                 cell.selectionStyle = .none
-                cell.configData(obj: element)
+                cell.configData(obj: element, isGroup: isGroup)
                 
                 return cell
             }else if(element.message_type == MessageType.image ){
@@ -1270,7 +1287,7 @@ extension ChatViewController: UITableViewDelegate, UITableViewDataSource {
                     cell = tableView.dequeueReusableCell(withIdentifier: identifier) as? LeftImageTableViewCell
                 }
                 cell.selectionStyle = .none
-                cell.configData(obj: element)
+                cell.configData(obj: element, isGroup: isGroup)
                 return cell
             }else if(element.message_type == MessageType.video ){
                 let identifier = "LeftVideoTableViewCell"
@@ -1283,7 +1300,7 @@ extension ChatViewController: UITableViewDelegate, UITableViewDataSource {
                 
                 let message_content = element.message_content as! MediaModel
                 verifyDownloadProgress(message_content: message_content, indexPath: indexPath, element: element)
-                cell.configData(obj: element)
+                cell.configData(obj: element, isGroup: isGroup)
                 
                 return cell
             }else if(element.message_type == MessageType.location ){
@@ -1294,7 +1311,7 @@ extension ChatViewController: UITableViewDelegate, UITableViewDataSource {
                     cell = tableView.dequeueReusableCell(withIdentifier: identifier) as? LeftLocationTableViewCell
                 }
                 cell.selectionStyle = .none
-                cell.configData(obj: element)
+                cell.configData(obj: element, isGroup: isGroup)
                 return cell
             }else if(element.message_type == MessageType.contact ){
                 let identifier = "LeftContactTableViewCell"
@@ -1304,7 +1321,7 @@ extension ChatViewController: UITableViewDelegate, UITableViewDataSource {
                     cell = tableView.dequeueReusableCell(withIdentifier: identifier) as? LeftContactTableViewCell
                 }
                 cell.selectionStyle = .none
-                cell.configData(obj: element)
+                cell.configData(obj: element, isGroup: isGroup)
                 return cell
             }else{
                 let identifier = "LeftDocTableViewCell"
@@ -1317,7 +1334,7 @@ extension ChatViewController: UITableViewDelegate, UITableViewDataSource {
                 
                 let message_content = element.message_content as! MediaModel
                 verifyDownloadProgress(message_content: message_content, indexPath: indexPath, element: element)
-                cell.configData(obj: element)
+                cell.configData(obj: element, isGroup: isGroup)
                 
                 return cell
             }
@@ -1612,7 +1629,7 @@ extension ChatViewController:UIImagePickerControllerDelegate, UINavigationContro
         
         pickerController.didSelectAssets = { (assets: [DKAsset]) in
             print("didSelectAssets")
-            print(assets[0].type == .video)
+//            print(assets[0].type == .video)
             
             for asset in assets {
                 switch asset.type {
@@ -2052,7 +2069,7 @@ extension ChatViewController: UploadStatusDelegate {
                 }
                 
             } else if(isSuccess == 500) {
-                self.showToast(message: response["message"] as! String)
+                self.showToast(message: response["message"] as? String ?? "Servver Error")
             }
             break
         }

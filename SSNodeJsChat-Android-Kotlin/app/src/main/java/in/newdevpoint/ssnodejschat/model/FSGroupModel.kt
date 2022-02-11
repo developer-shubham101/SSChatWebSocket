@@ -9,4 +9,7 @@ class FSGroupModel : Serializable {
 
     @SerializedName("about_group")
     var about_group = ""
+
+
+
 }

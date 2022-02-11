@@ -21,8 +21,12 @@ class LeftImageTableViewCell: UITableViewCell {
 		super.setSelected(selected, animated: animated) 
 		// Configure the view for the selected state
 	}
-	func configData(obj:ChatModel) {
-		time.text = obj.message_on
+	func configData(obj: ChatModel, isGroup: Bool) {
+        if isGroup {
+            time.text = "By: \(obj.sender_detail.firstName) (\(obj.message_on))"
+        } else {
+            time.text = obj.message_on
+        }
 		chatImage.clipsToBounds = true
 		chatImage.sd_setImage(with: URL(string: (obj.message_content as! MediaModel).file_url), completed: { (image, error, cache, url) in
 		})

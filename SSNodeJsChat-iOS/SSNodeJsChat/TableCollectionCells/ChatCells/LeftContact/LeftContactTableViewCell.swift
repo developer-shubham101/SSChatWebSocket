@@ -1,6 +1,6 @@
 //
 //  LeftContactTableViewCell.swift
-//  Shubham Sharma
+//  SSNodeJsChat
 //
 //  Created by Shubham Sharma on 07/04/20.
 //  Copyright © 2020 Shubham Sharma. All rights reserved.
@@ -22,8 +22,12 @@ class LeftContactTableViewCell: UITableViewCell {
 		
 		// Configure the view for the selected state
 	}
-	func configData(obj:ChatModel){
-		time.text = obj.message_on
+	func configData(obj: ChatModel, isGroup: Bool){
+        if isGroup {
+            time.text = "By: \(obj.sender_detail.firstName) (\(obj.message_on))"
+        } else {
+            time.text = obj.message_on
+        }
 		let contact = (obj.message_content as! MyContact)
 		contactName.text = "\(contact.firstName) \(contact.middleName) \(contact.lastName)"
 		number.text = "\(contact.mobile)"

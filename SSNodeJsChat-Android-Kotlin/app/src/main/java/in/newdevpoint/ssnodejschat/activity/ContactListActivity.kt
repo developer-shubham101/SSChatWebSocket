@@ -1,7 +1,6 @@
 package `in`.newdevpoint.ssnodejschat.activity
 
 import `in`.newdevpoint.ssnodejschat.R
-import `in`.newdevpoint.ssnodejschat.activity.ContactListActivity
 import `in`.newdevpoint.ssnodejschat.adapter.ContactListAdapter
 import `in`.newdevpoint.ssnodejschat.adapter.SelectedContactListAdapter
 import `in`.newdevpoint.ssnodejschat.databinding.ActivityContactListBinding
@@ -18,7 +17,6 @@ import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -27,7 +25,9 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.util.*
 
-class ContactListActivity : AppCompatActivity(), SelectedContactListAdapter.OnRemoveIconClickListener, ContactListAdapter.OnCheckBoxClickListener, PermissionClass.PermissionRequire {
+class ContactListActivity : AppCompatActivity(),
+    SelectedContactListAdapter.OnRemoveIconClickListener,
+    ContactListAdapter.OnCheckBoxClickListener, PermissionClass.PermissionRequire {
     private val tagUserListModelArrayList: ArrayList<ContactModel> = ArrayList<ContactModel>()
     private val selectedTagUserArrayList: ArrayList<ContactModel> = ArrayList<ContactModel>()
     private lateinit var binding: ActivityContactListBinding
@@ -37,19 +37,24 @@ class ContactListActivity : AppCompatActivity(), SelectedContactListAdapter.OnRe
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_contact_list)
-        viewModel = ViewModelProviders.of(this@ContactListActivity).get<ContactListViewModel>(ContactListViewModel::class.java)
+        viewModel = ViewModelProviders.of(this@ContactListActivity)
+            .get<ContactListViewModel>(ContactListViewModel::class.java)
 
         //	private ArrayList<ContactModel> tempTravelerPostTagedArrayList = new ArrayList();
         val permissionClass = PermissionClass(this, this)
         permissionClass.askPermission(REQUEST_READ_CONTACTS)
         binding.conBackBtn.setOnClickListener { finish() }
-        contactListAdapter = ContactListAdapter(this@ContactListActivity, this, tagUserListModelArrayList)
-        val mLayoutManager: RecyclerView.LayoutManager = LinearLayoutManager(this@ContactListActivity)
+        contactListAdapter =
+            ContactListAdapter(this@ContactListActivity, this, tagUserListModelArrayList)
+        val mLayoutManager: RecyclerView.LayoutManager =
+            LinearLayoutManager(this@ContactListActivity)
         binding.tagUserRecyclerView.layoutManager = mLayoutManager
         binding.tagUserRecyclerView.itemAnimator = DefaultItemAnimator()
         binding.tagUserRecyclerView.adapter = contactListAdapter
-        selectedContactListAdapter = SelectedContactListAdapter(this, selectedTagUserArrayList, this)
-        binding.tagSelectedUserRecyclerView.layoutManager = LinearLayoutManager(this@ContactListActivity, RecyclerView.HORIZONTAL, true)
+        selectedContactListAdapter =
+            SelectedContactListAdapter(this, selectedTagUserArrayList, this)
+        binding.tagSelectedUserRecyclerView.layoutManager =
+            LinearLayoutManager(this@ContactListActivity, RecyclerView.HORIZONTAL, true)
         binding.tagSelectedUserRecyclerView.itemAnimator = DefaultItemAnimator()
         binding.tagSelectedUserRecyclerView.adapter = selectedContactListAdapter
         binding.tagUserBtn.setOnClickListener {
@@ -65,14 +70,18 @@ class ContactListActivity : AppCompatActivity(), SelectedContactListAdapter.OnRe
                 setResult(RESULT_OK, intent)
                 finish()
             } else {
-                Toast.makeText(this@ContactListActivity, "Please select any User for Tag !", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this@ContactListActivity,
+                    "Please select any User for Tag !",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
         binding.searchUserEditText.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
                 val searchedKey = binding.searchUserEditText.text.toString()
-                contactListAdapter.getFilter().filter(searchedKey)
+                contactListAdapter.filter.filter(searchedKey)
             }
 
             override fun afterTextChanged(s: Editable) {}

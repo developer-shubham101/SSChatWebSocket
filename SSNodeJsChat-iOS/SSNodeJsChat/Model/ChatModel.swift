@@ -1,6 +1,6 @@
 //
 //  ChatModel.swift
-//  Shubham Sharma
+//  SSNodeJsChat
 //
 //  Created by Shubham Sharma on 06/04/20.
 //  Copyright © 2020 Shubham Sharma. All rights reserved.
@@ -46,7 +46,7 @@ public class ChatModel {
 //	public var createdTime:String = ""
 	
 	//	public var height: CGFloat = 0title
-	public var createdDate: Date = Date()
+	public var createdDate: Date =    Date()
 	
 	
 	required public init() {}
@@ -140,7 +140,7 @@ public class ChatModel {
        
         if let date = t.toDate(format: "yyyy-MM-dd'T'HH:mm:ss.SSSX"){
             createdDate = date.noon
-            message_on = date.toString(format: "HH:mm:ss")//Utils.dayDifference(from: date)
+            message_on = date.toString(format: "HH:mm a")//Utils.dayDifference(from: date)
         }
 	}
 }

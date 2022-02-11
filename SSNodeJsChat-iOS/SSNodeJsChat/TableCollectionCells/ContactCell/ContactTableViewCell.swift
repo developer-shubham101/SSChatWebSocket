@@ -1,6 +1,6 @@
 //
 //  ContactTableViewCell.swift
-//  Shubham Sharma
+//  SSNodeJsChat
 //
 //  Created by Shubham Sharma on 07/04/20.
 //  Copyright © 2020 Shubham Sharma. All rights reserved.
@@ -34,9 +34,9 @@ class ContactTableViewCell: UITableViewCell {
 //			}
 //		}
 		if data.is_selected {
-			checkImageView.image = UIImage(named: "ic_checked")
+			checkImageView.image = UIImage(named: "ic_check")
 		}else{
-			checkImageView.image = UIImage(named: "ic_unchecked")
+			checkImageView.image = UIImage(named: "ic_uncheck")
 		}
 	}
 }

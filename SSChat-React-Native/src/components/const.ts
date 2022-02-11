@@ -2,12 +2,20 @@ export const TYPE_LOGIN_OR_CREATE = 'loginOrCreate';
 export const ALL_USER = 'allUsers';
 export const TYPE_CREATE_ROOM = 'createRoom';
 export const TYPE_ADD_MESSAGE = 'addMessage';
+
+export const TYPE_BLOCKED_USER = 'blockUser';
 export const TYPE_CREATE_CONNECTION = 'create';
+export const TYPE_ALL_BLOCK_USER = 'allBlockUser';
+
+
 
 export const REQUEST = 'login';
 export const REQUEST_USERS = 'users';
 export const REQUEST_ROOM = 'room';
 export const REQUEST_MESSAGE = 'message';
+export const BLOCK_USER = 'block_user';
+
+
 export const REQUEST_ALL_ROOMS = 'allRooms';
 export const REQUEST_ALL_MESSAGES = 'allMessage';
 export const REQUEST_CREATE_CONNECTION = 'create_connection';

@@ -21,7 +21,7 @@
                 android:layout_height="wrap_content">
 
 
-                <com.cusom.views.CustomFontTextView
+                <TextView
                     android:id="@+id/loginTitle"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -50,17 +50,17 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/loginTitle">
 
-                    <com.cusom.views.CustomFontEdittext
+                    <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/loginUserEmail"
-                        style="@style/input_text_style"
+
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginRight="15dp"
                         android:ems="10"
                         android:hint="@string/username_email"
                         android:inputType="textEmailAddress"
-                        app:weight="light"
                         android:text="shubham@yopmail.com"
+                        app:weight="light"
                         tools:text="shubham@yopmail.com" />
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -78,9 +78,9 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/regUserNamehint">
 
-                    <com.cusom.views.CustomFontEdittext
+                    <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/loginPassword"
-                        style="@style/input_text_style"
+
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
@@ -97,26 +97,24 @@
 
                 <Button
                     android:id="@+id/loginBtn"
-                    style="@style/button_style"
-                    android:layout_width="0dp"
+                    android:layout_width="200dp"
                     android:layout_height="50dp"
-                    android:layout_marginStart="15dp"
-                    android:layout_marginLeft="15dp"
+
                     android:layout_marginTop="32dp"
                     android:layout_marginEnd="15dp"
                     android:layout_marginRight="15dp"
                     android:layout_marginBottom="32dp"
-                    android:gravity="start|center"
+                    android:backgroundTint="@color/colorAccent"
+                    android:gravity="center"
                     android:paddingLeft="15dp"
+                    android:textColor="@color/colorWhite"
                     android:text="@string/login_small"
-                    android:textAlignment="textStart"
                     android:textAllCaps="false"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.0"
+
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/regPasswordhint" />
-
 
 
             </androidx.constraintlayout.widget.ConstraintLayout>

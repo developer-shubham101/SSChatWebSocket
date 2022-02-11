@@ -1,6 +1,6 @@
 //
 //  LeftVideoTableViewCell.swift
-//  Shubham Sharma
+//  SSNodeJsChat
 //
 //  Created by Shubham Sharma on 08/04/20.
 //  Copyright © 2020 Shubham Sharma. All rights reserved.
@@ -42,7 +42,7 @@ class LeftVideoTableViewCell: UITableViewCell, DownloadTableCell {
 		super.setSelected(selected, animated: animated)
 		// Configure the view for the selected state
 	}
-	func configData(obj: ChatModel) {
+	func configData(obj: ChatModel, isGroup: Bool) {
 		let message_content = (obj.message_content as! MediaModel)
 		
 		switch obj.downloadStatus {
@@ -63,7 +63,11 @@ class LeftVideoTableViewCell: UITableViewCell, DownloadTableCell {
 			break
 		}
 		
-		time.text = obj.message_on
+        if isGroup {
+            time.text = "By: \(obj.sender_detail.firstName) (\(obj.message_on))"
+        } else {
+            time.text = obj.message_on
+        }
 		chatImage.clipsToBounds = true
 		chatImage.sd_setImage(with: message_content.file_meta.thumbnail, completed: { (image, error, cache, url) in
 			

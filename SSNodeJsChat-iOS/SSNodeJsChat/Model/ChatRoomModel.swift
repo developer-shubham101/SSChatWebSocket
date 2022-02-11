@@ -15,6 +15,7 @@ class ChatRoomModel {
     
     var last_message: String = ""
     var last_message_time: String = ""
+    var create_time: String = ""
     
     var groupDetail: GroupModel?
 //    var individualDetail: UserDetailsModel?
@@ -34,6 +35,15 @@ class ChatRoomModel {
         
         last_message = disc["last_message"] as? String ?? ""
         last_message_time = disc["last_message_time"] as? String ?? ""
+        create_time = disc["create_time"] as? String ?? ""
+        isGroup = (disc["type"] as? String ?? "individual") == "group"
+        
+        if isGroup {
+            groupDetail = GroupModel(disc: disc["group_details"]  as? [String : Any] ?? [:])
+        }
+        
+        
+        
         
         let users: [String] = Array(tmpUsers.keys)
         
@@ -64,11 +74,15 @@ class ChatRoomModel {
 @objcMembers
 class GroupModel: NSObject {
     
-    var name: String = "Sample"
-    var users: [String] = []
+    var groupName: String = "Sample"
+    var groupDesciprion: String = "Sample"
+    var groupIcon: String = "Sample"
     
-    init(disc: [String:Any]) {
-        
+    
+    init(disc: [String: Any]) {
+        groupName = disc["group_name"] as? String ?? ""
+        groupDesciprion = disc["about_group"] as? String ?? ""
+        groupIcon = disc["about_pic"] as? String ?? ""
     }
 }
 
@@ -129,6 +143,8 @@ public class UserDetailsModel: NSObject {
     var profile_pic: String = ""
     var last_seen: String = ""
     var is_online: Bool = false
+    
+    var isSelectedForGroup: Bool = false
     
      
     static func giveList(list: [[String:Any]]) -> [UserDetailsModel] {

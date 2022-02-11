@@ -22,8 +22,12 @@ class LeftLocationTableViewCell: UITableViewCell {
 		
 		// Configure the view for the selected state
 	}
-	func configData(obj:ChatModel){
-		time.text = obj.message_on
+    func configData(obj: ChatModel, isGroup: Bool){
+        if isGroup {
+            time.text = "By: \(obj.sender_detail.firstName) (\(obj.message_on))"
+        } else {
+            time.text = obj.message_on
+        }
 		
 		if let locationModel: LocationModel = obj.message_content as? LocationModel {
 			locationName.text = locationModel.name

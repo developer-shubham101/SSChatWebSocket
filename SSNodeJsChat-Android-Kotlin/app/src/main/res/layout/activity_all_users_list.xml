@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<layout xmlns:tools="http://schemas.android.com/tools"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -38,7 +37,7 @@
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <com.cusom.views.CustomFontTextView
+            <TextView
                 android:id="@+id/titleToolbar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -52,30 +51,9 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <ImageView
-                android:id="@+id/homNotification"
-                android:layout_width="45dp"
-                android:layout_height="45dp"
-                android:layout_marginTop="2dp"
-                android:padding="10dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/ic_notification" />
 
-            <TextView
-                android:layout_width="17dp"
-                android:layout_height="17dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="6dp"
-                android:layout_marginRight="6dp"
-                android:background="@drawable/background_circle_blue_fill"
-                android:gravity="center"
-                android:text="0"
-                android:textColor="@color/colorWhite"
-                android:textSize="9dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/homNotification" />
+
+
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -94,50 +72,87 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/toolbarLayout" />
 
+
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/textInputLayout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+
+                android:layout_marginBottom="8dp"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/toolbarLayout"
+
+
+                >
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/userListGroupName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+
+                    android:textSize="12sp"
+                    android:hint="Please enter group name"
+                    android:singleLine="true"
+                    android:layout_marginLeft="10dp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+
+
+
+
+
+
+
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/usersSelectedList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="visible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textInputLayout" />
+
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/usersList"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_marginTop="80dp"
+            android:layout_marginTop="7dp"
             android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/toolbarLayout">
+            app:layout_constraintTop_toBottomOf="@+id/usersSelectedList" />
 
-        </androidx.recyclerview.widget.RecyclerView>
 
-        <Switch
-            android:id="@+id/switchCreateGroup"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
-            android:text="Create Group"
-            app:layout_constraintBottom_toBottomOf="@+id/textInputLayout"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/textInputLayout"
-            app:layout_constraintTop_toTopOf="@+id/textInputLayout" />
+        <ImageView
+            android:id="@+id/userGrupImage"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:padding="5dp"
+            android:layout_margin="10dp"
+            android:background="@drawable/circle_shape"
+            android:src="@drawable/ic_group_add2"
+            app:layout_constraintBottom_toTopOf="@+id/userNextBtn"
+            app:layout_constraintEnd_toEndOf="parent" />
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/textInputLayout"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
-            app:layout_constraintBottom_toTopOf="@+id/usersList"
-            app:layout_constraintEnd_toStartOf="@+id/switchCreateGroup"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/toolbarLayout">
+        <ImageView
+            android:id="@+id/userNextBtn"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:padding="5dp"
+            android:visibility="gone"
+            android:layout_margin="10dp"
+           android:background="@drawable/circle_shape"
+            android:src="@drawable/ic_done2"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/userListGroupName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Please enter group name" />
-        </com.google.android.material.textfield.TextInputLayout>
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

@@ -94,6 +94,9 @@ extension String {
             if (self == ""){
                 return nil
             }
+            if (self.starts(with: "http://") || self.starts(with: "https://")){
+                return URL(string: self)
+            }
             return URL(string: "\(NetworkManager.STORAGE_URL)\(self)")
         }
     }

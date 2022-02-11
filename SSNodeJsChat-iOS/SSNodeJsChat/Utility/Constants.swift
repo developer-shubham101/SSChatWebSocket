@@ -33,4 +33,6 @@ enum ResponseType: String {
     case roomsDetails = "roomsDetails"
     case blockUserModified = "blockUser"
     case allBlockUser = "allBlockUser"
+    case updateProfile = "updateProfile"
+    
 }

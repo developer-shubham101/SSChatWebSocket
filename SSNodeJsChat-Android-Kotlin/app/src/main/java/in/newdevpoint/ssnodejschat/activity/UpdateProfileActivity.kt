@@ -47,6 +47,7 @@ class UpdateProfileActivity : AppCompatActivity(), WebSocketObserver {
         loginBinding = DataBindingUtil.setContentView(this, R.layout.activity_edit_profile)
         //        mWaitingDialog = new Waiting(LoginActivity.this);
         WebSocketSingleton.Companion.getInstant()!!.register(this)
+        loginBinding.backBtnImage.setOnClickListener { finish() }
         loginBinding.editProfileEmail.setText(UserDetails.myDetail.email)
         loginBinding.editProfileUpdate.setOnClickListener { v: View? -> updateUserProfile() }
         loginBinding.editProfileProfile.setOnClickListener { v: View? ->
@@ -55,10 +56,15 @@ class UpdateProfileActivity : AppCompatActivity(), WebSocketObserver {
         uploadInterface = APIClient.getClient()!!.create(UploadInterface::class.java)
         loginBinding.editProfileEmail.setText(UserDetails.myDetail.email)
         loginBinding.editProfileName.setText(UserDetails.myDetail.name)
-        Glide.with(this)
-            .setDefaultRequestOptions(AppApplication.Companion.USER_PROFILE_DEFAULT_GLIDE_CONFIG)
-            .load(Utils.getImageString(UserDetails.myDetail.profile_image))
-            .into(loginBinding.editProfileProfile)
+
+
+        val userImage = UserDetails.myDetail.profile_image.getImageString()
+        if (userImage != null) {
+            Glide.with(this)
+                .setDefaultRequestOptions(AppApplication.USER_PROFILE_DEFAULT_GLIDE_CONFIG)
+                .load(userImage)
+                .into(loginBinding.editProfileProfile)
+        }
     }
 
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -132,7 +138,7 @@ class UpdateProfileActivity : AppCompatActivity(), WebSocketObserver {
         //        mWaitingDialog.show();
         val jsonObject = JSONObject()
         try {
-            jsonObject.put("userId", PreferenceUtils.getRegisterUser(this)?.id)
+            jsonObject.put("userId", PreferenceUtils.getRegisterUser()?.id)
             jsonObject.put("userName", loginBinding.editProfileEmail.text.toString())
             //            jsonObject.put("email", loginBinding.editProfileEmail.getText().toString());
             jsonObject.put("firstName", loginBinding.editProfileName.text.toString())

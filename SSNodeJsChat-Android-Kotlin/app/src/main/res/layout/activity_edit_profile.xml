@@ -38,7 +38,7 @@
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <com.cusom.views.CustomFontTextView
+            <TextView
                 android:id="@+id/titleToolbar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -83,9 +83,9 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/editProfileProfile">
 
-                    <com.cusom.views.CustomFontEdittext
+                    <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/editProfileEmail"
-                        style="@style/input_text_style"
+
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="15dp"
@@ -111,9 +111,9 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/hintEditProfileEmail">
 
-                    <com.cusom.views.CustomFontEdittext
+                    <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/editProfileName"
-                        style="@style/input_text_style"
+
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
@@ -128,8 +128,8 @@
 
                 <Button
                     android:id="@+id/editProfileUpdate"
-                    style="@style/button_style"
-                    android:layout_width="0dp"
+                    android:backgroundTint="@color/colorAccent"
+                    android:layout_width="200dp"
                     android:layout_height="50dp"
                     android:layout_marginStart="15dp"
                     android:layout_marginLeft="15dp"
@@ -145,7 +145,7 @@
                     android:textAllCaps="false"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.0"
+
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/hintEditProfileName" />
 

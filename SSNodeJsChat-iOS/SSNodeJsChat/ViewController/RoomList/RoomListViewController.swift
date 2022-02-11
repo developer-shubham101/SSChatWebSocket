@@ -24,15 +24,9 @@ class RoomListViewController: UIViewController {
         initCollection()
         
         let editImage    = UIImage(named: "ic_edit")
-//        let searchImage  = UIImage(named: "search")
-        
         let editButton   = UIBarButtonItem(image: editImage, style: .plain, target: self, action: #selector(didTapEditButton(sender:)))
-//        let searchButton = UIBarButtonItem(image: searchImage, style: .plain, target: self, action: #selector(didTapSearchButton(sender:)))
-        
-        
         navigationItem.rightBarButtonItems = [editButton]
-        
-        title = "Room"
+        title = "Rooms"
         
     }
     @objc func didTapEditButton(sender: AnyObject){
@@ -112,7 +106,7 @@ extension RoomListViewController: UITableViewDelegate, UITableViewDataSource {
         let identifier = "ChatTableViewCell"
         var cell: ChatTableViewCell! = tableView.dequeueReusableCell(withIdentifier: identifier) as? ChatTableViewCell
         if cell == nil {
-            tableView.register(UINib(nibName: "ChatTableViewCell", bundle: nil), forCellReuseIdentifier: identifier)
+            tableView.register(UINib(nibName: identifier, bundle: nil), forCellReuseIdentifier: identifier)
             cell = tableView.dequeueReusableCell(withIdentifier: identifier) as? ChatTableViewCell
         }
         cell.configData(obj: tableItems[indexPath.row])
@@ -128,6 +122,8 @@ extension RoomListViewController: UITableViewDelegate, UITableViewDataSource {
         if let individualDetail: UserDetailsModel = RoomListViewController.userDetailsList[tableItems[indexPath.row].individualUserId] {
             vc.individualDetail = individualDetail
         }
+        
+        vc.roomInfo = tableItems[indexPath.row]
         
         self.navigationController?.pushViewController(vc, animated: true)
     }

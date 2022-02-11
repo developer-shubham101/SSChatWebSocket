@@ -1,6 +1,6 @@
 //
 //  FileUtils.swift
-//  Reward
+//  SSNodeJsChat
 //
 //  Created by Shubham Sharma on 19/02/20.
 //  Copyright © 2020 Shubham Sharma. All rights reserved.
