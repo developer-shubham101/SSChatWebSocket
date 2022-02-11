@@ -5,7 +5,6 @@
 	},
 	"nodemonConfig": {
 		"ignore": ["uploads/*"]
-
 	},
 	"dependencies": {
 		"express": "^4.17.2",

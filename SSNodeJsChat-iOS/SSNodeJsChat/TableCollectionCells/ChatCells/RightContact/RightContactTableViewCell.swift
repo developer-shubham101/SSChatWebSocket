@@ -1,6 +1,6 @@
 //
 //  RightContactTableViewCell.swift
-//  Shubham Sharma
+//  SSNodeJsChat
 //
 //  Created by Shubham Sharma on 07/04/20.
 //  Copyright © 2020 Shubham Sharma. All rights reserved.

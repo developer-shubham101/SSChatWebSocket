@@ -117,6 +117,7 @@
 		72E37F8B25950A6D00E0F8B8 /* ChatTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72E37F8925950A6D00E0F8B8 /* ChatTableViewCell.swift */; };
 		72E37F8C25950A6D00E0F8B8 /* ChatTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 72E37F8A25950A6D00E0F8B8 /* ChatTableViewCell.xib */; };
 		72E37F9125950AB400E0F8B8 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72E37F9025950AB400E0F8B8 /* Utils.swift */; };
+		759570C727B63E46003E6B3D /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 759570C627B63E46003E6B3D /* Config.swift */; };
 		75DBFED02793267300126723 /* GroupInfoRowTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75DBFECE2793267300126723 /* GroupInfoRowTableViewCell.swift */; };
 		75DBFED12793267300126723 /* GroupInfoRowTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 75DBFECF2793267300126723 /* GroupInfoRowTableViewCell.xib */; };
 		75DE055425E7AE72009D607E /* SocketMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75DE055325E7AE72009D607E /* SocketMessage.swift */; };
@@ -262,6 +263,7 @@
 		72E37F8925950A6D00E0F8B8 /* ChatTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatTableViewCell.swift; sourceTree = "<group>"; };
 		72E37F8A25950A6D00E0F8B8 /* ChatTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ChatTableViewCell.xib; sourceTree = "<group>"; };
 		72E37F9025950AB400E0F8B8 /* Utils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
+		759570C627B63E46003E6B3D /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
 		75DBFECE2793267300126723 /* GroupInfoRowTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupInfoRowTableViewCell.swift; sourceTree = "<group>"; };
 		75DBFECF2793267300126723 /* GroupInfoRowTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = GroupInfoRowTableViewCell.xib; sourceTree = "<group>"; };
 		75DE055325E7AE72009D607E /* SocketMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocketMessage.swift; sourceTree = "<group>"; };
@@ -788,6 +790,7 @@
 				72E37F462595060900E0F8B8 /* Assets.xcassets */,
 				72E37F482595060900E0F8B8 /* LaunchScreen.storyboard */,
 				72E37F4B2595060900E0F8B8 /* Info.plist */,
+				759570C627B63E46003E6B3D /* Config.swift */,
 			);
 			path = SSNodeJsChat;
 			sourceTree = "<group>";
@@ -1212,6 +1215,7 @@
 				7222B67A25BDD7E300888A64 /* NetworkManager.swift in Sources */,
 				7222B69E25BDD8B700888A64 /* PlacesListRenderer.swift in Sources */,
 				72E37F7D259509C100E0F8B8 /* ChatViewController.swift in Sources */,
+				759570C727B63E46003E6B3D /* Config.swift in Sources */,
 				72E37F9125950AB400E0F8B8 /* Utils.swift in Sources */,
 				724959CD260B74C300F7CACF /* Constants.swift in Sources */,
 				7222B6F025BDD95100888A64 /* RightLocationTableViewCell.swift in Sources */,

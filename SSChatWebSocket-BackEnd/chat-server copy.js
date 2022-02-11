@@ -64,7 +64,6 @@ var RoomModel = mongoose.model('Room', {
 	type: String, //group/individual
 	last_message: Object,
 	last_message_time: Date,
-	create_time: Date,
 	message_info: Object,
 	group_details: Object,
 	users_meta: Object,
@@ -96,7 +95,7 @@ function makeRandomString(length) {
 // route
 app.get('/', (req, res) => {
 	// Sending This is the home page! in the page
-	res.send('This is the home page! in Express');
+	res.send('This is the home page!');
 });
 
 function moveFile(file) {
@@ -117,8 +116,8 @@ app.post('/upload', upload.fields([{ name: 'file', maxCount: 1 }, { name: 'thumb
 
 	if (req.files.file && req.files.file.length > 0) {
 		let newFileName = moveFile(req.files.file[0]);
-		let thumbnailFileName = req.files.thumbnail?.length > 0 ? moveFile(req.files.thumbnail[0]) : '';
-		res.send({ status_code: 200, data: { file: newFileName, thumbnail: thumbnailFileName }, response: 'success' });
+		let thumbnailFileName = req.files.thumbnail.length > 0 ? moveFile(req.files.thumbnail[0]) : '';
+		res.send({ statusCode: 200, data: { file: newFileName, thumbnail: thumbnailFileName }, response: 'success' });
 	} else {
 		// res.status(400).send('Please upload a file');
 		res.send(JSON.stringify(req.files));
@@ -129,11 +128,14 @@ app.post('/upload', upload.fields([{ name: 'file', maxCount: 1 }, { name: 'thumb
 app.use('/uploads', express.static(__dirname + '/uploads'));
 
 
+// Listening to the port
+let PORT = 3000;
+app.listen(PORT)
 
 /**
  * HTTP server
  */
-/* var server = http.createServer(function (request, response) {
+var server = http.createServer(function (request, response) {
 	// set response header
 	response.writeHead(200, { 'Content-Type': 'text/html' });
 
@@ -147,12 +149,6 @@ server.listen(config.webSocketsServerPort, function () {
 	// console.log((new Date()) + " Server is listening on port " + config.webSocketsServerPort);
 	console.log("Express server listening on port::: ", config.webSocketsServerPort);
 
-}); */
-
-var server = http.createServer(app);
-
-server.listen(config.webSocketsServerPort, function () {
-	console.log("Express server listening on port::: ", config.webSocketsServerPort);
 });
 
 /**
@@ -177,6 +173,7 @@ wsServer.on('request', function (request) {
 		console.log(`Connection from origin ${request.origin} rejected. At ${new Date()}`);
 
 	}
+	// chatRequest(request);
 });
 
 
@@ -636,7 +633,6 @@ class SSChatReact {
 				}
 
 				findObject['last_message_time'] = new Date();
-				findObject['create_time'] = new Date();
 				findObject['userList'] = userList;
 				findObject['createBy'] = createBy;
 
@@ -701,6 +697,8 @@ class SSChatReact {
 					useFindAndModify: false
 				}, (err, updatedRoom) => {
 					// console.log("updatedRoom:::", updatedRoom);
+
+
 					if (err) {
 						connection.sendUTF(this.responseError(500, "roomsModified", "Internal Server Error.", true));
 					} else {
@@ -709,49 +707,6 @@ class SSChatReact {
 					}
 
 				});
-			}
-		} else if (requestData.type == 'removeUser') {
-			var roomId = requestData.roomId;
-
-			if (!this.isFine(roomId)) {
-				connection.sendUTF(this.responseError(400, "roomsModified", "Please add room id.", true));
-			} else {
-
-
-				RoomModel.find({ _id: mongoose.Types.ObjectId(roomId) }).exec((err, messages) => {
-					//res.send(messages);
-					// console.log(`On connect Error:::${err} data:::`, messages);
-					// connection.sendUTF(`user login successfully ${messages}`);
-
-					if (messages && messages.length > 0) {
-						console.log(`Room Data Found....`, messages);
-
-
-						let dataToUpdate = messages[0];
-
-						dataToUpdate.userList = dataToUpdate.userList.filter(item => item != requestData.userId);
-						delete dataToUpdate.users[requestData.userId];
-
-
-						RoomModel.findOneAndUpdate({ _id: mongoose.Types.ObjectId(roomId) }, dataToUpdate, {
-							new: false,
-							useFindAndModify: false
-						}, (err, updatedRoom) => {
-							console.log("updatedRoom:::", updatedRoom);
-							if (err) {
-								connection.sendUTF(this.responseError(500, "roomsModified", "Internal Server Error.", true));
-							} else {
-								connection.sendUTF(this.responseSuccess(200, "roomsModified", updatedRoom, "Data updated successfully.", true));
-							}
-
-						});
-						 
-					} else {
-						connection.sendUTF(this.responseError(404, "roomsDetails", "Not Found", true));
-					}
-				});
-
-				
 			}
 		}
 	}

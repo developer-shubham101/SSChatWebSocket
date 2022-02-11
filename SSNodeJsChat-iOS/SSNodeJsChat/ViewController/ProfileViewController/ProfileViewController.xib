@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="19455" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17505"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="19454"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -13,6 +13,8 @@
             <connections>
                 <outlet property="emailField" destination="h7b-yg-H4I" id="C3S-L4-Ugc"/>
                 <outlet property="nameField" destination="2RI-9P-ShN" id="ooQ-O7-j4H"/>
+                <outlet property="profileImg" destination="FDP-8b-WCc" id="z0R-w5-rD7"/>
+                <outlet property="uploadMediaProgress" destination="867-I5-kTX" id="72K-pp-cqP"/>
                 <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
             </connections>
         </placeholder>
@@ -22,7 +24,7 @@
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="aCE-W8-PnA">
-                    <rect key="frame" x="10" y="54" width="394" height="118"/>
+                    <rect key="frame" x="10" y="174" width="394" height="118"/>
                     <subviews>
                         <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Email" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="h7b-yg-H4I">
                             <rect key="frame" x="0.0" y="0.0" width="394" height="34"/>
@@ -43,18 +45,44 @@
                         </button>
                     </subviews>
                 </stackView>
+                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ic_placeholder_profile" translatesAutoresizingMaskIntoConstraints="NO" id="FDP-8b-WCc" customClass="SSImageView" customModule="SSViews">
+                    <rect key="frame" x="167" y="64" width="80" height="80"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="80" id="QZr-nZ-Jd5"/>
+                        <constraint firstAttribute="height" constant="80" id="VEJ-Qw-YAb"/>
+                    </constraints>
+                    <userDefinedRuntimeAttributes>
+                        <userDefinedRuntimeAttribute type="boolean" keyPath="radius" value="YES"/>
+                        <userDefinedRuntimeAttribute type="number" keyPath="radiusAmt">
+                            <real key="value" value="40"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="boolean" keyPath="clipOuterView" value="YES"/>
+                    </userDefinedRuntimeAttributes>
+                </imageView>
+                <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="867-I5-kTX">
+                    <rect key="frame" x="0.0" y="772" width="414" height="90"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="90" id="Mmk-ju-7z4"/>
+                    </constraints>
+                </stackView>
             </subviews>
             <viewLayoutGuide key="safeArea" id="fnl-2z-Ty3"/>
             <color key="backgroundColor" systemColor="systemBackgroundColor"/>
             <constraints>
-                <constraint firstItem="aCE-W8-PnA" firstAttribute="top" secondItem="fnl-2z-Ty3" secondAttribute="top" constant="10" id="1kQ-iX-iYQ"/>
                 <constraint firstItem="aCE-W8-PnA" firstAttribute="leading" secondItem="fnl-2z-Ty3" secondAttribute="leading" constant="10" id="3Dv-JX-OSh"/>
+                <constraint firstItem="867-I5-kTX" firstAttribute="leading" secondItem="fnl-2z-Ty3" secondAttribute="leading" id="5sI-si-YPl"/>
+                <constraint firstItem="aCE-W8-PnA" firstAttribute="top" secondItem="FDP-8b-WCc" secondAttribute="bottom" constant="30" id="G2j-OS-hEq"/>
                 <constraint firstItem="fnl-2z-Ty3" firstAttribute="trailing" secondItem="aCE-W8-PnA" secondAttribute="trailing" constant="10" id="XXq-uY-ECO"/>
+                <constraint firstItem="FDP-8b-WCc" firstAttribute="centerX" secondItem="i5M-Pr-FkT" secondAttribute="centerX" id="dfX-6C-EF8"/>
+                <constraint firstItem="fnl-2z-Ty3" firstAttribute="bottom" secondItem="867-I5-kTX" secondAttribute="bottom" id="eNR-LO-Cph"/>
+                <constraint firstItem="FDP-8b-WCc" firstAttribute="top" secondItem="fnl-2z-Ty3" secondAttribute="top" constant="20" id="eON-i6-POy"/>
+                <constraint firstItem="fnl-2z-Ty3" firstAttribute="trailing" secondItem="867-I5-kTX" secondAttribute="trailing" id="nSI-8g-tMo"/>
             </constraints>
             <point key="canvasLocation" x="139" y="124"/>
         </view>
     </objects>
     <resources>
+        <image name="ic_placeholder_profile" width="336" height="336"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

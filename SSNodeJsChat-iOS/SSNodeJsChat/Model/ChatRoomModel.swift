@@ -15,6 +15,7 @@ class ChatRoomModel {
     
     var last_message: String = ""
     var last_message_time: String = ""
+    var create_time: String = ""
     
     var groupDetail: GroupModel?
 //    var individualDetail: UserDetailsModel?
@@ -34,6 +35,7 @@ class ChatRoomModel {
         
         last_message = disc["last_message"] as? String ?? ""
         last_message_time = disc["last_message_time"] as? String ?? ""
+        create_time = disc["create_time"] as? String ?? ""
         isGroup = (disc["type"] as? String ?? "individual") == "group"
         
         if isGroup {

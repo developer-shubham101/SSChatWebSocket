@@ -35,7 +35,7 @@ class UploadFileProgressFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_upload_file, container, false)
-        val view = binding.getRoot()
+        val view = binding.root
         //here data must be an instance of the class MarsDataProvider
 //		binding.setMarsdata(data);
         binding.progressPercentage.text = "10%"

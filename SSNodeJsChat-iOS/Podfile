@@ -9,7 +9,6 @@ target 'SSNodeJsChat' do
 
   pod 'SDWebImage'
   pod 'IQKeyboardManager'
-  #pod 'Starscream', '~> 4.0.0'
   pod 'Alamofire', '~> 4.5'
   pod 'Socket.IO-Client-Swift', '~> 15.2.0'
   pod 'SSViews'
@@ -19,9 +18,6 @@ target 'SSNodeJsChat' do
   pod 'Toast-Swift' 
   pod 'DKImagePickerController'
   pod 'CropViewController'
-  
-  #pod 'SSExtensions', :path => '/Users/ajitjain/Documents/Max/iOS/MyPod/SSExtensions/'
-
   
   pod 'Firebase/Core'
   pod 'Firebase/Messaging'

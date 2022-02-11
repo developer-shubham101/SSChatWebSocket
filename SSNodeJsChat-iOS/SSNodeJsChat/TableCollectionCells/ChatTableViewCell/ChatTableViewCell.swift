@@ -36,7 +36,7 @@ class ChatTableViewCell: UITableViewCell {
                 onlineVIew.isHidden = true
 //                rootVIew.backgroundColor = individualDetail.is_online ? .systemGreen : .systemRed
                 
-                profilePic.sd_setImage(with: URL(string: groupDetail.groupIcon), completed: { (image, error, cache, url) in
+                profilePic.sd_setImage(with: URL(string: groupDetail.groupIcon), completed: {(image, error, cache, url) in
                     if ((error) != nil) {
                         self.profilePic.image = UIImage(named: "ic_placeholder_profile")
                     }

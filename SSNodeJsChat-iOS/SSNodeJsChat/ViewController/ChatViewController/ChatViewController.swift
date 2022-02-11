@@ -2069,7 +2069,7 @@ extension ChatViewController: UploadStatusDelegate {
                 }
                 
             } else if(isSuccess == 500) {
-                self.showToast(message: response["message"] as! String)
+                self.showToast(message: response["message"] as? String ?? "Servver Error")
             }
             break
         }

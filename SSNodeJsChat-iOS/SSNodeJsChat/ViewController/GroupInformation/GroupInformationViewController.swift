@@ -57,7 +57,7 @@ class GroupInformationViewController: UIViewController {
         SocketManager.shared.registerToScoket(observer: self)
         
         
-//        tableView.estimatedRowHeight = 50
+        //        tableView.estimatedRowHeight = 50
         tableView.contentInset = UIEdgeInsets(top: 100, left: 0, bottom: 0, right: 0)
         
         imageView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.size.width, height: 300)
@@ -109,14 +109,45 @@ class GroupInformationViewController: UIViewController {
     }
     
     @objc func onClickedToolBarCreateGroup(sender: AnyObject) {
-        let vc = AllUserListViewController()
-        vc.isSelectedGroup = true
-        self.navigationController?.pushViewController(vc, animated: true)
+//        let vc = AllUserListViewController()
+//        vc.isSelectedGroup = true
+//        self.navigationController?.pushViewController(vc, animated: true)
+        
+        
+        let alertController = UIAlertController(title: "Action" , message: "", preferredStyle: .actionSheet)
+        let editButton = UIAlertAction(title: "Exit Group", style: .default, handler: { (action) -> Void in
+             
+            
+            let json: [String: Any] = ["type": "removeUser",
+                                       "userId": LoginUserModel.shared.userId,
+                                       "roomId": self.roomInfo?.id,
+                                       "request":"room",
+                                       "room_type": "group",
+                                      
+            ]
+            if let jsonString: NSString = JsonOperation.toJsonStringFrom(dictionary: json) {
+                print(jsonString)
+                SocketManager.shared.sendMessageToSocket(message: jsonString as String)
+            }
+          
+        })
+        
+        //                alertController.addAction(deleteButton)
+        alertController.addAction(editButton)
+        
+        
+        let cancelButton = UIAlertAction(title: "Cancel" , style: .cancel, handler: { (action) -> Void in
+        })
+        
+        
+        alertController.addAction(cancelButton)
+        
+        self.present(alertController, animated: true, completion: nil)
     }
     func openNameDialog() {
         alertWithTextField(title: "Group Name", message: "Enter group name", placeholder: "eg: My Group") { result in
             if (result.isEmpty) {
-//                self.openNameDialog()
+                //                self.openNameDialog()
             } else {
                 
                 var users = (self.tableItems[1].data as!  [UserDetailsModel]).map { element in
@@ -145,7 +176,7 @@ class GroupInformationViewController: UIViewController {
         }
     }
     
-
+    
 }
 extension GroupInformationViewController: UITableViewDelegate, UITableViewDataSource {
     
@@ -173,7 +204,7 @@ extension GroupInformationViewController: UITableViewDelegate, UITableViewDataSo
                 tableView.register(UINib(nibName: identifier, bundle: nil), forCellReuseIdentifier: identifier)
                 cell = tableView.dequeueReusableCell(withIdentifier: identifier) as? GroupInfoRowTableViewCell
             }
-            cell.configData(obj: rowIndexItem.groupDetail?.groupName ?? "")
+            cell.configData(obj: "\(rowIndexItem.groupDetail?.groupName ?? "") \(rowIndexItem.create_time)")
             return cell
         case .users:
             let rowIndexItem = indexItem.data[indexPath.row] as! UserDetailsModel
@@ -186,13 +217,11 @@ extension GroupInformationViewController: UITableViewDelegate, UITableViewDataSo
             cell.configData(obj: rowIndexItem, isSelectedGroup: false)
             return cell
         }
-        
-        
     }
     
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-         
+        
         
     }
     
