@@ -20,6 +20,8 @@ class ChatRoomModel {
     var groupDetail: GroupModel?
 //    var individualDetail: UserDetailsModel?
     var individualUserId: String = ""
+    var usersList: [String] = []
+    
     
     static func giveList(list: [[String:Any]]) -> [ChatRoomModel] {
         var couponsArray = [ChatRoomModel]()
@@ -46,6 +48,7 @@ class ChatRoomModel {
         
         
         let users: [String] = Array(tmpUsers.keys)
+        usersList = users
         
 //        individualDetail = IndividualModel(disc: [:])
 //        let user: [String] = users.filter({ (element) -> Bool in

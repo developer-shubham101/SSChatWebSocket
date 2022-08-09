@@ -81,6 +81,11 @@
             <point key="canvasLocation" x="139" y="124"/>
         </view>
     </objects>
+    <designables>
+        <designable name="FDP-8b-WCc">
+            <size key="intrinsicContentSize" width="336" height="336"/>
+        </designable>
+    </designables>
     <resources>
         <image name="ic_placeholder_profile" width="336" height="336"/>
         <systemColor name="systemBackgroundColor">

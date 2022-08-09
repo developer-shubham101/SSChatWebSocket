@@ -27,6 +27,7 @@ class GroupInformationViewController: UIViewController {
     
     fileprivate var tableItems = [GroupInformationModel]()
     fileprivate let imageView = UIImageView()
+    fileprivate var canRemove = false
     
     var roomInfo: ChatRoomModel?
     
@@ -78,7 +79,7 @@ class GroupInformationViewController: UIViewController {
     }
     
     deinit {
-        print("deinit Called:: AllUserListViewController ")
+        print("deinit Called:: GroupInformationViewController ")
     }
     
     fileprivate func getChatRoomList() {
@@ -132,7 +133,65 @@ class GroupInformationViewController: UIViewController {
           
         })
         
-        //                alertController.addAction(deleteButton)
+        let addButton = UIAlertAction(title: "Add Members", style: .default, handler: { (action) -> Void in
+             
+            let vc = AllUserListViewController()
+            vc.groupType = .addMenber
+            vc.callback = {(users) in
+                print("callback")
+                print(users)
+                
+                
+                let json: [String: Any] = ["type": "addUser",
+                                           "userList": users,
+                                           "roomId": self.roomInfo?.id,
+                                           "request":"room",
+                                           "room_type": "group",
+                                          
+                ]
+                if let jsonString: NSString = JsonOperation.toJsonStringFrom(dictionary: json) {
+                    print(jsonString)
+                    SocketManager.shared.sendMessageToSocket(message: jsonString as String)
+                }
+                
+            }
+            self.navigationController?.pushViewController(vc, animated: true)
+        })
+        
+        
+        let removeButton = UIAlertAction(title: "Remove Members", style: .default, handler: {(action) -> Void in
+             
+            self.canRemove = !self.canRemove
+            
+        })
+        
+        
+        let renameButton = UIAlertAction(title: "Rename Group", style: .default, handler: {(action) -> Void in
+            self.alertWithTextField(title: "Change group name", message: "Enter new group name", placeholder: "eg: New Group") { result in
+                
+                let groupDetails: [String: Any] = [
+                    "group_name": result,
+                    "about_group": "This is Just a Sample Group updared"
+                ]
+                
+                let json: [String: Any] = ["type": "roomsModify",
+                                           "group_details": groupDetails,
+                                           "roomId": self.roomInfo?.id,
+                                           "request":"room",
+                                           "room_type": "group",
+                                          
+                ]
+                if let jsonString: NSString = JsonOperation.toJsonStringFrom(dictionary: json) {
+                    print(jsonString)
+                    SocketManager.shared.sendMessageToSocket(message: jsonString as String)
+                }
+            }
+        })
+        
+   
+        alertController.addAction(renameButton)
+        alertController.addAction(removeButton)
+        alertController.addAction(addButton)
         alertController.addAction(editButton)
         
         
@@ -230,6 +289,41 @@ extension GroupInformationViewController: UITableViewDelegate, UITableViewDataSo
         let height = min(max(y, 60), 400)
         imageView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.size.width, height: height)
     }
+    
+    
+    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        let indexItem: GroupInformationModel = tableItems[indexPath.section]
+        
+        switch indexItem.type {
+        case .info:
+            return false
+        case .users:
+            return canRemove
+        }
+    }
+
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if (editingStyle == .delete) {
+            // handle delete (by removing the data from your array and updating the tableview)
+            confirmDialog(title: "Alert!", message: "Are you sure you want to remove user", confirmBtnTxt: "Sure", cancelBtnTxt: "No") { response in
+                let indexItem: GroupInformationModel = self.tableItems[indexPath.section]
+                let rowIndexItem =  indexItem.data[indexPath.row] as! UserDetailsModel
+                    let json: [String: Any] = ["type": "removeUser",
+                                               "userId": rowIndexItem.userId,
+                                               "roomId": self.roomInfo?.id,
+                                               "request":"room",
+                                               "room_type": "group",
+        
+                    ]
+                    if let jsonString: NSString = JsonOperation.toJsonStringFrom(dictionary: json) {
+                        print(jsonString)
+                        SocketManager.shared.sendMessageToSocket(message: jsonString as String)
+                    }
+            }
+            
+
+        }
+    }
 }
 
 
@@ -246,10 +340,12 @@ extension GroupInformationViewController: SocketObserver {
         if observerWithIdentifire == .allUsers {
             if let data = data["data"] as? [[String: Any]] {
                 
+                let usersList = roomInfo?.usersList ?? []
+                
                 var tempList = UserDetailsModel.giveList(list: data)
                 ///Exclude Login user
                 tempList = tempList.filter({ (element) -> Bool in
-                    return element.userId != LoginUserModel.shared.userId
+                    return element.userId != LoginUserModel.shared.userId && usersList.contains(element.userId)
                 })
                 tableItems[1].data = tempList
                 self.tableView.reloadData()

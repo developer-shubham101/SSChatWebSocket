@@ -152,7 +152,7 @@ server.listen(config.webSocketsServerPort, function () {
 var server = http.createServer(app);
 
 server.listen(config.webSocketsServerPort, function () {
-	console.log("Express server listening on port::: ", config.webSocketsServerPort);
+	console.log("Express server listening on port::: ", `http://localhost:${config.webSocketsServerPort}`);
 });
 
 /**
@@ -411,7 +411,7 @@ class SSChatReact {
 					"firstName": "",
 					"profile_pic": ""
 				}, JSON.parse(JSON.stringify(element)))
-				// console.log(x);
+				console.log(x);
 				return x;
 			})
 
@@ -495,7 +495,7 @@ class SSChatReact {
 				// connection.sendUTF(`user login successfully ${messages}`);
 
 				if (messages && messages.length > 0) {
-					console.log(`Room Data Found....`, messages);
+					// console.log(`Room Data Found....`, messages);
 					let usersList = [];
 					messages.forEach((element) => {
 						usersList = usersList.concat(Object.keys(element.users));
@@ -559,7 +559,7 @@ class SSChatReact {
 					// connection.sendUTF(`user login successfully ${messages}`);
 
 					if (messages && messages.length > 0) {
-						console.log(`Room Data Found....`, messages);
+						// console.log(`Room Data Found....`, messages);
 						let usersList = [];
 						messages.forEach((element) => {
 							usersList = usersList.concat(Object.keys(element.users));
@@ -696,45 +696,68 @@ class SSChatReact {
 					dataToUpdate[`unread.${requestData.unread}`] = 0;
 				}
 
+				//Group Details Update
+				let rules_group_details = {
+					group_details: 'required', //TODO: check data type of userId 
+				};
+
+				let validation_group_details = new Validator(requestData, rules_group_details);
+
+				if (!validation_group_details.fails()) {
+					dataToUpdate['group_details'] = requestData.group_details;
+				}
+				//End Group Details Update
+
 				RoomModel.findOneAndUpdate({ _id: mongoose.Types.ObjectId(roomId) }, dataToUpdate, {
-					new: false,
+					new: true,
 					useFindAndModify: false
 				}, (err, updatedRoom) => {
 					// console.log("updatedRoom:::", updatedRoom);
-					if (err) {
-						connection.sendUTF(this.responseError(500, "roomsModified", "Internal Server Error.", true));
-					} else {
-						updatedRoom[`unread`][requestData.unread] = 0;
-						connection.sendUTF(this.responseSuccess(200, "roomsModified", updatedRoom, "Data updated successfully.", true));
+					try {
+						if (err) {
+							connection.sendUTF(this.responseError(500, "roomsModified", "Internal Server Error.", true));
+						} else {
+							// updatedRoom[`unread`][requestData.unread] = 0;
+							connection.sendUTF(this.responseSuccess(200, "roomsModified", updatedRoom, "Data updated successfully.", true));
+							//Send event to all room members
+							this.createNewRoomNotify(updatedRoom);
+						}
+					} catch (ex) {
+						console.trace('Found New Error');
+						console.warn(ex);
 					}
-
 				});
 			}
 		} else if (requestData.type == 'removeUser') {
-			var roomId = requestData.roomId;
 
-			if (!this.isFine(roomId)) {
-				connection.sendUTF(this.responseError(400, "roomsModified", "Please add room id.", true));
+			let rules = {
+				userId: 'required', //TODO: check data type of userId
+				roomId: 'required' 	//TODO: check data type of roomId
+			};
+
+			let validation = new Validator(requestData, rules);
+
+			let userId = requestData.userId;
+			let roomId = requestData.roomId;
+
+			if (validation.fails()) {
+				connection.sendUTF(this.responseError(400, "roomsModified", validation.errors, true));
 			} else {
 
-
 				RoomModel.find({ _id: mongoose.Types.ObjectId(roomId) }).exec((err, messages) => {
-					//res.send(messages);
-					// console.log(`On connect Error:::${err} data:::`, messages);
-					// connection.sendUTF(`user login successfully ${messages}`);
 
 					if (messages && messages.length > 0) {
-						console.log(`Room Data Found....`, messages);
+						// console.log(`Room Data Found....`, messages);
 
 
 						let dataToUpdate = messages[0];
 
-						dataToUpdate.userList = dataToUpdate.userList.filter(item => item != requestData.userId);
-						delete dataToUpdate.users[requestData.userId];
+						dataToUpdate.userList = dataToUpdate.userList.filter(item => item != userId);
+						delete dataToUpdate.users[userId];
 
 
 						RoomModel.findOneAndUpdate({ _id: mongoose.Types.ObjectId(roomId) }, dataToUpdate, {
-							new: false,
+							new: true,
 							useFindAndModify: false
 						}, (err, updatedRoom) => {
 							console.log("updatedRoom:::", updatedRoom);
@@ -745,13 +768,58 @@ class SSChatReact {
 							}
 
 						});
-						 
+
 					} else {
 						connection.sendUTF(this.responseError(404, "roomsDetails", "Not Found", true));
 					}
 				});
+			}
+		} else if (requestData.type == 'addUser') {
+			let rules = {
+				userList: 'required|array|min:1',
+				roomId: 'required'
+			};
 
-				
+			let validation = new Validator(requestData, rules);
+
+			let userList = requestData.userList;
+			let roomId = requestData.roomId;
+
+			console.log('new userList', userList);
+
+			if (validation.fails()) {
+				connection.sendUTF(this.responseError(400, "createRoom", validation.errors, true));
+			} else {
+				RoomModel.find({ _id: mongoose.Types.ObjectId(roomId) }).exec((err, messages) => {
+
+					if (messages && messages.length > 0) {
+						// console.log(`Room Data Found....`, messages);
+
+
+						let dataToUpdate = messages[0];
+
+						dataToUpdate.userList = Array.from(new Set([...dataToUpdate.userList, ...userList]));
+
+						userList.forEach(item => dataToUpdate.users[item] = true);
+
+						RoomModel.findOneAndUpdate({ _id: mongoose.Types.ObjectId(roomId) }, dataToUpdate, {
+							new: true,
+							useFindAndModify: false
+						}, (err, updatedRoom) => {
+							console.log("updatedRoom:::", updatedRoom);
+							if (err) {
+								connection.sendUTF(this.responseError(500, "addUser", "Internal Server Error.", true));
+							} else {
+								connection.sendUTF(this.responseSuccess(200, "addUser", updatedRoom, "User Added Successfully.", true));
+								//Send event to all room members
+								this.createNewRoomNotify(updatedRoom);
+							}
+						});
+
+					} else {
+						connection.sendUTF(this.responseError(404, "addUser", "Room Not Found", true));
+					}
+				});
 			}
 		}
 	}
@@ -760,7 +828,7 @@ class SSChatReact {
 		if (requestData.type == 'allUsers') {
 			UsersModel.find({}, (err, messages) => {
 				//res.send(messages);
-				console.log(`On UsersModel.find Error:::${err} responses:::`, messages);
+				// console.log(`On UsersModel.find Error:::${err} responses:::`, messages);
 				if (messages && messages.length > 0) {
 					connection.sendUTF(this.responseSuccess(200, "allUsers", messages, "User list.", true));
 				} else {
@@ -1004,18 +1072,15 @@ class SSChatReact {
 
 					if (updated_user == null) {
 						connection.sendUTF(this.responseError(400, "updateProfile", "No user found.", true));
+						UsersModel.find({ _id: mongoose.Types.ObjectId(updated_user._id) }, (err, findUser) => {
+
+							if (findUser && findUser.length > 0) {
+								/// Notify to all active user about that user profile
+								this.sendMessageToAll(this.responseSuccess(200, "userModified", findUser[0], "User Details Changed", true))
+							}
+						});
 					}
-
 					connection.sendUTF(this.responseSuccess(200, "updateProfile", updated_user, "Data updated successfully.", true));
-
-
-					UsersModel.find({ _id: mongoose.Types.ObjectId(updated_user._id) }, (err, findUser) => {
-
-						if (findUser && findUser.length > 0) {
-							/// Notify to all active user about that user profile
-							this.sendMessageToAll(this.responseSuccess(200, "userModified", findUser[0], "User Details Changed", true))
-						}
-					});
 
 				});
 			}
@@ -1216,32 +1281,33 @@ class SSChatReact {
 									return element.fcm_token;
 								});
 								console.log(`fcmTokens::: `, fcmTokens);
+								if (senderUserDetail && messageData) {
+									let message = { //this may vary according to the message type (single recipient, multicast, topic, et cetera)
+										"registration_ids": fcmTokens,
+										// collapse_key: 'your_collapse_key',
 
-								let message = { //this may vary according to the message type (single recipient, multicast, topic, et cetera)
-									"registration_ids": fcmTokens,
-									// collapse_key: 'your_collapse_key',
-
-									notification: {
-										title: `New message from ${senderUserDetail.firstName}`,
-										body: this.getLastMessageForNotification(messageData.message, messageData.message_type)
-									},
-
-									data: {
-										payload: {
-											payload: "17",
-											id: messageData.roomId
+										notification: {
+											title: `New message from ${senderUserDetail.firstName}`,
+											body: this.getLastMessageForNotification(messageData.message, messageData.message_type)
 										},
-									}
-								};
+
+										data: {
+											payload: {
+												payload: "17",
+												id: messageData.roomId
+											},
+										}
+									};
 
 
-								config.isSendPushNotification && fcm.send(message, function (err, response) {
-									if (err) {
-										console.log("Something has gone wrong!");
-									} else {
-										console.log("Successfully sent with response: ", response);
-									}
-								});
+									config.isSendPushNotification && fcm.send(message, function (err, response) {
+										if (err) {
+											console.log("Something has gone wrong!");
+										} else {
+											console.log("Successfully sent with response: ", response);
+										}
+									});
+								}
 							});
 						});
 					}).catch((ex) => {
@@ -1457,3 +1523,4 @@ mongoose.connect(config.dbUrl, {
 }, (error) => {
 	console.log({ message: 'mongodb connected', error });
 })
+//Changes
