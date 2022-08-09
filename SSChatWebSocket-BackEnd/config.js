@@ -7,9 +7,9 @@ config.isSendPushNotification = false;
 config.serverKey = 'scasca';
 
 // MongoDB Url
-// config.dbUrl = 'mongodb://127.0.0.1:27017/SSReactChat';//  ReactChat
-//mongodb+srv://ReactChat:<password>@sample.b9ow3.mongodb.net/myFirstDatabase?retryWrites=true&w=majority
-config.dbUrl = 'mongodb+srv://ReactChat:zLv9moWZL0kzPG32@sample.b9ow3.mongodb.net/SSReactChat?retryWrites=true&w=majority';//  ReactChat
+config.dbUrl = 'mongodb://127.0.0.1:27017/SSReactChat';//  ReactChat //SSReactChat //Fitness
+// mongodb+srv://ReactChat:<password>@sample.b9ow3.mongodb.net/myFirstDatabase?retryWrites=true&w=majority
+// config.dbUrl = 'mongodb+srv://ReactChat:zLv9moWZL0kzPG32@sample.b9ow3.mongodb.net/SSReactChat?retryWrites=true&w=majority';//  ReactChat
 
 // Port where we'll run the websocket server
 config.webSocketsServerPort = process.env.PORT || 1337;

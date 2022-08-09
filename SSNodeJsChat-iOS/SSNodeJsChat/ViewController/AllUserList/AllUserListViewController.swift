@@ -8,13 +8,20 @@
 import UIKit
 import Starscream
 
+enum GroupType {
+    case group
+    case individual
+    case addMenber
+}
+
 class AllUserListViewController: AppViewController{
     
     
     @IBOutlet weak var tableView: UITableView!
     
     fileprivate var tableItems: [UserDetailsModel] = []
-    var isSelectedGroup: Bool = false
+    var groupType: GroupType = .individual
+    var callback: (([String]) -> Void)?
     
     override func viewWillAppear(_ animated: Bool) {
         initCollection()
@@ -28,15 +35,27 @@ class AllUserListViewController: AppViewController{
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        if (isSelectedGroup){
-            let editButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonItem.SystemItem.save, target: self, action: #selector(onClickedToolbeltButton(sender:)))
-            navigationItem.rightBarButtonItems = [editButton]
-            title = "Create New Room"
-        } else {
+        switch(groupType) {
+        case .individual :
             let editButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonItem.SystemItem.compose, target: self, action: #selector(onClickedToolBarCreateGroup(sender:)))
             navigationItem.rightBarButtonItems = [editButton]
             title = "Start Chat With"
+            break
+            
+        case .group :
+            let editButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonItem.SystemItem.save, target: self, action: #selector(onClickedToolbeltButton(sender:)))
+            navigationItem.rightBarButtonItems = [editButton]
+            title = "Create New Room"
+            break
+            
+        case .addMenber:
+            let editButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonItem.SystemItem.save, target: self, action: #selector(onClickedToolbeltAddMember(sender:)))
+            navigationItem.rightBarButtonItems = [editButton]
+            title = "Add New Members"
+            break
         }
+        
+       
         
         SocketManager.shared.registerToScoket(observer: self)
     }
@@ -82,9 +101,21 @@ class AllUserListViewController: AppViewController{
         openNameDialog()
     }
     
+    
+    @objc func onClickedToolbeltAddMember(sender: AnyObject) {
+        if let tmpCallback = callback {
+            let users = self.tableItems.filter({ element in
+                return element.isSelectedForGroup
+            }).map { element in
+                return element.userId
+            }
+            tmpCallback(users)
+        }
+    }
+    
     @objc func onClickedToolBarCreateGroup(sender: AnyObject) {
         let vc = AllUserListViewController()
-        vc.isSelectedGroup = true
+        vc.groupType = .group
         self.navigationController?.pushViewController(vc, animated: true)
     }
     func openNameDialog() {
@@ -93,7 +124,9 @@ class AllUserListViewController: AppViewController{
 //                self.openNameDialog()
             } else {
                 
-                var users = self.tableItems.map { element in
+                var users = self.tableItems.filter({ element in
+                    return element.isSelectedForGroup
+                }).map { element in
                     return element.userId
                 }
                 users.append(LoginUserModel.shared.userId)
@@ -138,16 +171,13 @@ extension AllUserListViewController: UITableViewDelegate, UITableViewDataSource 
             tableView.register(UINib(nibName: identifier, bundle: nil), forCellReuseIdentifier: identifier)
             cell = tableView.dequeueReusableCell(withIdentifier: identifier) as? UserTableViewCell
         }
-        cell.configData(obj: tableItems[indexPath.row], isSelectedGroup: isSelectedGroup)
+        cell.configData(obj: tableItems[indexPath.row], isSelectedGroup: groupType != .individual)
         return cell
     }
     
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        if (isSelectedGroup) {
-            tableItems[indexPath.row].isSelectedForGroup = !tableItems[indexPath.row].isSelectedForGroup
-            tableView.reloadData()
-        }else{
+        if (groupType == .individual) {
             let json: [String: Any] = ["type": "createRoom",
                                        "userList": [LoginUserModel.shared.userId, tableItems[indexPath.row].userId],
                                        "createBy": LoginUserModel.shared.userId,
@@ -155,6 +185,10 @@ extension AllUserListViewController: UITableViewDelegate, UITableViewDataSource 
             if let jsonString: NSString = JsonOperation.toJsonStringFrom(dictionary: json) {
                 SocketManager.shared.sendMessageToSocket(message: jsonString as String)
             }
+        } else {
+            
+            tableItems[indexPath.row].isSelectedForGroup = !tableItems[indexPath.row].isSelectedForGroup
+            tableView.reloadData()
         }
         
         
